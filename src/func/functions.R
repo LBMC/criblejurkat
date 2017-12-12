@@ -137,8 +137,15 @@ PlotMeanSignalsPlates <- function(annotation.init, name.save, mean.signal.plate)
 							x.plot <- column.template[1, code.w[ind]] 
 							col.tmp <- col[ind]; lwd.tmp <- lwd[ind]; pch.tmp <- as.numeric(t[ind])
 							points(x.plot, tmp[[temp.channels]][, 1][ind], col = col.tmp, lwd = lwd.tmp, pch = pch.tmp, cex = 1.25)
-							lo <- loess(tmp[[temp.channels]][, 1][ind] ~x.plot)
-							points( x.plot, predict(lo, x.plot ),type="l", col = col.tmp[1], lty = 3)
+							expr <- try(lo <- loess(tmp[[temp.channels]][, 1][ind] ~x.plot), silent = T)
+							if(class(expr) != "try-error") {
+							 if(length(x.plot)>2) {
+							   lo <- loess(tmp[[temp.channels]][, 1][ind] ~x.plot)
+							   points( x.plot, predict(lo, x.plot ),type="l", col = col.tmp[1], lty = 3)
+							 }else{
+							   points( x.plot, tmp[[temp.channels]][, 1][ind] ,type="l", col = col.tmp[1], lty = 3)
+							 }
+						  }
 						}
 					}
 					x <- seq(8, 96, 8); 
@@ -152,8 +159,15 @@ PlotMeanSignalsPlates <- function(annotation.init, name.save, mean.signal.plate)
 							x.plot <- row.template[1, code.w[ind]] 
 							col.tmp <- col[ind]; lwd.tmp <- lwd[ind]; pch.tmp <- as.numeric(t[ind])
 							points(x.plot, tmp[[temp.channels]][, 1][ind], col = col.tmp, lwd = lwd.tmp, pch = pch.tmp, cex = 1.25)
-							lo <- loess(tmp[[temp.channels]][, 1][ind] ~x.plot)
-							points( x.plot, predict(lo, x.plot ),type="l", col = col.tmp[1], lty = 3)
+							expr <- try(lo <- loess(tmp[[temp.channels]][, 1][ind] ~x.plot), silent = T)
+							if(class(try) !="try-error"){
+							  if(length(x.plot)>2) {
+							    lo <- loess(tmp[[temp.channels]][, 1][ind] ~x.plot)
+							    points( x.plot, predict(lo, x.plot ),type="l", col = col.tmp[1], lty = 3)
+							  }else{
+							    points( x.plot, tmp[[temp.channels]][, 1][ind],type="l", col = col.tmp[1], lty = 3)
+							  }
+							}
 						}
 					}
 					x <- seq(12, 96, 12); 
@@ -165,6 +179,6 @@ PlotMeanSignalsPlates <- function(annotation.init, name.save, mean.signal.plate)
 				legend("bottomright", inset = c(0, -0.3), xpd = T, levels(t), horiz = T, col = 1, cex = 0.75, pch = seq_along(levels(t)), bty = "n")
 			}
 		}
+		dev.off()
 	}
-	dev.off()
 }
