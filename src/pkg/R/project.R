@@ -338,6 +338,8 @@ scdata <- R6::R6Class("scdata",
 #' CribleJurkat("data/2018_01_08_20171212/", 'results/2018_01_08_20171212/')
 #' }
 #' @export load_data
-function CribleJurkat(data_path, results_path) {
+CribleJurkat <- function(data_path, results_path) {
+  infos <- CribleJurkat::load_infos(data_path)
+  data <- CribleJurkat::load_data(data_path)
 
 }
