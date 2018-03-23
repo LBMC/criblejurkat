@@ -18,6 +18,15 @@ load_crap <- function(annotation) {
   n.cl <- length(unique(annotation$cell.line))
 }
 
+#' read annotation.csv files in a folder
+#'
+#' @param data_path path to the csv folder
+#' @return a data.frame
+#' @examples
+#' \dontrun{
+#' load_annotation("data/examples/")
+#' }
+#' @export load_annotation
 load_annotation <- function(data_path) {
   annotation_path <- paste0(data_path, "annotation.csv")
   annotation <- read.table(annotation_path, h = T, sep = ";", stringsAsFactors = F)
@@ -59,9 +68,10 @@ get_files <- function(path, regexp) {
 #' @return a object of class flowSet
 #' @examples
 #' \dontrun{
-#' get_files("data/examples/")
+#' load_data("data/examples/")
 #' }
 #' @importFrom flowCore read.flowSet
+#' @export load_data
 load_data <- function(data_path) {
   if (base::file.info(data_path)$isdir) {
     fcs_files <- get_files(data_path, ".fcs")
@@ -70,40 +80,14 @@ load_data <- function(data_path) {
       transformation = F,
       alter.names = T
     )
+    pData(fcs_data) <- cbind(
+      pData(phenoData(fcs_data)),
+      load_annotation(data_path)
+    )
   } else {
     stop(print0(
       "error: ", data_path, " is not a directory"
     ))
   }
-  pData(fcs_data) <- cbind(
-    pData(fcs_data),
-    load_annotation(data_path)
-  )
-  
-
-fset.raw <- read.flowSet(files = paste("../../data/", annotation$date, "/", annotation$file, sep = ""), transformation = F, alter.names = T)
-pData(fset.raw) <- cbind(pData(fset.raw), annotation)
-
-##### Init nb of events
-nb.events.raw <- fsApply(fset.raw, function(x) dim(x)[1], use.exprs = T)
-
-##### Channels for GFP-RFP ratios
-channels.all <- channels$fcs.column; marker.all <- channels$channels
-channels.per.sample <- annotation$channels
-channels.ratio <- sapply(c("GFP", "RFP"), function(x) channels[marker.all == x, ]$fcs.column)
-at.least.one.DAPI.stained <- length(which(annotation$dapi == T))>0
-nb.channels <- dim(channels)[1]; nb.samples <- dim(annotation)[1]
-files.labelled <- list(setdiff(sapply(seq_len(nb.samples), function(y) {x <- channels.per.sample[y]; ifelse(length(grep("RFP", x))>0 & length(grep("GFP", x))>0, annotation$file[y], "None")}), "None"))
-files.labelled <- c(files.labelled, list(files.labelled[[1]])); names <- c("ratio.RFP.GFP", "log2.ratio")
-for (i in seq_along(marker.all)) {
-	files.tmp <- setdiff(sapply(seq_len(nb.samples), function(y) {x <- channels.per.sample[y]; ifelse(length(grep(marker.all[i], x))>0, annotation$file[y], "None")}), "None")
-	files.labelled <- c(files.labelled, list(files.tmp, files.tmp))
-	names <- c(names, channels.all[i], paste("log10.", strsplit(channels.all[i], ".", fixed = T)[[1]][1], sep = ""))
-}
-names(files.labelled) <- names
-
-##### Look for extreme values in labelled samples
-max.val <- apply(fsApply(fset.raw, each_col, max)[, c("FSC.W", "FSC.A", "SSC.A", rep(channels.all, nb.channels))], 2, function(x) max(x))
-min.val <- apply(fsApply(fset.raw, each_col, min)[, c("FSC.W", "FSC.A", "SSC.A", rep(channels.all, nb.channels))], 2, function(x) min(x))
-limits.extreme.channels <- rbind(min.val, max.val)
+  return(fcs_data)
 }
