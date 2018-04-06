@@ -11,7 +11,6 @@ biocLite("flowCore")
 biocLite("flowStats")
 biocLite("flowQ")
 biocLite("flowVS")
-
 biocLite("ggcyto")
 
 
@@ -22,11 +21,6 @@ get_files <- function(path, regexp) {
   file_list <- file_list[grepl(regexp, file_list, perl = T)]
   return(as.vector(unlist(file_list)))
 }
-
-setwd("~/projects/CribleJurkat")
-data_dir <- "data/examples/"
-devtools::load_all("src/pkg", reset = T)
-x <- load_data(data_dir)
 
 ################################################################################
 setwd("~/projects/CribleJurkat")
@@ -46,6 +40,7 @@ x <- read.flowSet(
 
 require("ggplot2")
 require("reshape2")
+# plot measurment according to time
 data <- apply(matrix(sampleNames(x), ncol = 1), 1, FUN = function(x, fset){
   data <- data.frame(exprs(fset[[x]]))
   data <- cbind(
@@ -57,22 +52,37 @@ data <- apply(matrix(sampleNames(x), ncol = 1), 1, FUN = function(x, fset){
 }, fset = x)
 data <- do.call(rbind, data)
 names(data)[1:2] <- c("well", "step")
-data.m <- melt(data, id.vars = c("well", "step"))
+summary(data)
+data.s <- data[data$step %in% sample(data$step, size = 1000),]
+data.m <- melt(data.s, id.vars = c("well", "HDR.T"))
 
 for (marker in names(data)[-c(1,2)]) {
   g <- ggplot(
       data.m[data.m$variable %in% marker, ],
-      aes(x = step, y = value, group = well, color = well)
+      aes(x = HDR.T, y = value, group = well, color = well)
     ) +
-    geom_smooth(span = 0.0001, se = FALSE) +
+    geom_smooth(se = FALSE) +
     theme_bw() +
     ggtitle(marker) +
     theme(legend.position="none")
     ggsave(
-      filename = paste0("results/qa/time_", marker, ".png"), plot = g,
+      filename = paste0("results/qa/time_", marker, ".pdf"), plot = g,
       width = 29.7, height = 21, units = "cm", scale = 2
     )
 }
+g <- ggplot(
+    data.m,
+    aes(x = HDR.T, y = value, group = well, color = well)
+  ) +
+  geom_smooth(se = FALSE) +
+  theme_bw() +
+  facet_wrap(~variable) +
+  ggtitle(marker) +
+  theme(legend.position="none")
+ggsave(
+  filename = paste0("results/qa/time_all.pdf"), plot = g,
+  width = 29.7, height = 21, units = "cm", scale = 2
+)
 
 
 ################################################################################
