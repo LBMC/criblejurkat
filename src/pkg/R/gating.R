@@ -7,7 +7,7 @@
 #' fsc_data <- rm_debris(fsc_data)
 #' }
 #' @importFrom flowClust flowClust getEstimates split
-#' @export load_data
+#' @export rm_debris
 rm_debris <- function(fcs_data) {
   fcs_nonDebris <- fcs_data
   outdir <- mk_outdir(fcs_data, "gating")
@@ -47,4 +47,43 @@ rm_debris <- function(fcs_data) {
   }
   dev.off()
   return(fcs_nonDebris)
+}
+
+#' remove non singlets
+#'
+#' @param fcs_data an object of class flowSet
+#' @return an object of class flowSet
+#' @examples
+#' \dontrun{
+#' fsc_data <- rm_nonsinglets(fsc_data)
+#' }
+#' @importFrom flowClust flowClust getEstimates split
+#' @importFrom flowWorkspace GatingSet asinhtGml2_trans transformerList
+#' @importFrom flowCore transform
+#' @importFrom openCyto add_pop
+#' @importFrom ggcyto ggcyto
+#' @export rm_nonsinglets
+rm_nonsinglets <- function(fcs_data) {
+  outdir <- mk_outdir(fcs_data, "gating")
+  wf <- flowWorkspace::GatingSet(fcs_data)
+  asinhTrans <- flowWorkspace::asinhtGml2_trans()
+  tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), asinhTrans)
+  wf <- flowCore::transform(wf, tl)
+  openCyto::add_pop(
+    wf, alias = "singlets", pop = "singlets", parent = "root",
+    dims = "FSC.A,FSC.H", gating_method = "singletGate",
+    gating_args = "wider_gate=TRUE"
+  )
+  p <- ggcyto::ggcyto(wf, mapping = aes(x = FSC.A,y = FSC.H)) +
+    geom_hex(bins = 50) +
+    geom_gate("singlets") +
+    ggcyto_par_set(limits = "instrument") +
+    labs(title = "Singlets gate")
+  ggsave(
+    filename = paste0(outdir, "singlets.pdf"), plot = p,
+    width = 29.7, height = 21, units = "cm", scale = 2
+  )
+  # gating fluo
+  fcs_singlets <- getData(wf, "singlets")
+  return(fcs_singlets)
 }
