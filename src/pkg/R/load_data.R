@@ -118,3 +118,23 @@ load_data <- function(data_path) {
 project_name <- function(fcs_data) {
   gsub("data/(.+)/.*fcs", "\\1", rownames(pData(x_fluo)), perl=T)[1]
 }
+
+#' create outdir
+#'
+#' @param fcs_dat an object of class flowSet
+#' @param outdir a directory name
+#' @return the name of the project
+#' @examples
+#' \dontrun{
+#' mk_outdir(fcs_data, "gating")
+#' }
+#' @export project_name
+mk_outdir <- function(fcs_data, folder){
+  outdir <- paste0(
+    "results/",
+    project_name(fcs_data),
+    "/", folder, "/"
+  )
+  dir.create(outdir, recursive = TRUE)
+  return(outdir)
+}
