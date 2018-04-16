@@ -65,29 +65,56 @@ get_files <- function(path, regexp) {
 #' read fcs files in a folder
 #'
 #' @param data_path path to the fcs folder
-#' @return a object of class flowSet
+#' @return an object of class flowSet
 #' @examples
 #' \dontrun{
 #' load_data("data/examples/")
 #' }
 #' @importFrom flowCore read.flowSet
+#' @importFrom BioBase AnnotatedDataFrame
 #' @export load_data
 load_data <- function(data_path) {
   if (base::file.info(data_path)$isdir) {
-    fcs_files <- get_files(data_path, ".fcs")
-    fcs_data <- read.flowSet(
-      fcs_files,
-      transformation = F,
-      alter.names = T
-    )
-    pData(fcs_data) <- cbind(
-      pData(phenoData(fcs_data)),
-      load_annotation(data_path)
-    )
+    fcs_files <- get_files(data_dir, ".fcs")
   } else {
     stop(print0(
       "error: ", data_path, " is not a directory"
     ))
   }
+  if (base::length(fcs_files) < 1) {
+    stop(print0(
+      "error: ", data_path, " doesn't contain .fcs files"
+    ))
+  }
+  if (base::file.exists(paste0(data_dir, "/annotation.csv"))) {
+    annotation <- read.csv(
+      paste0(data_dir, "/annotation.csv"), sep = ";", header = TRUE
+    )
+  } else {
+    stop(print0(
+      "error: ", data_path, " doesn't contain an annotation.csv file"
+    ))
+  }
+  annotation <- as(annotation, "AnnotatedDataFrame")
+  rownames(annotation) <- fcs_files
+  fcs_data <- flowCore::read.flowSet(
+    transformation = F,
+    alter.names = T,
+    phenoData = annotation,
+    truncate_max_range = TRUE
+  )
   return(fcs_data)
+}
+
+#' get project name
+#'
+#' @param fcs_dat an object of class flowSet
+#' @return the name of the project
+#' @examples
+#' \dontrun{
+#' project_name(fcs_data)
+#' }
+#' @export project_name
+project_name <- function(fcs_data) {
+  gsub("data/(.+)/.*fcs", "\\1", rownames(pData(x_fluo)), perl=T)[1]
 }
