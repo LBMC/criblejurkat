@@ -87,3 +87,35 @@ rm_nonsinglets <- function(fcs_data) {
   fcs_singlets <- getData(wf, "singlets")
   return(fcs_singlets)
 }
+
+#' remove outliers on fluorecence channels
+#'
+#' @param fcs_data an object of class flowSet
+#' @return an object of class flowSet
+#' @examples
+#' \dontrun{
+#' fsc_data <- rm_nonfluop(fsc_data)
+#' }
+#' @importFrom flowClust flowClust getEstimates split
+#' @export rm_nonfluop
+rm_nonfluop<- function(fcs_data) {
+  outdir <- mk_outdir(fcs_data, "gating")
+  fcs_fluo <- fcs_data
+  pdf(paste0(outdir, "fluo.pdf"), width = 80.3, height = 110.7)
+  par(mfrow = c(16, 6))
+  for (i in 1:length(x)) {
+    res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
+    plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
+    fcs_fluo[[i]] <- split(
+      fcs_data[[i]],
+      res1,
+      population = list(
+        fluo = 1
+      )
+    )$fluo
+  }
+  dev.off()
+  return(fcs_fluo)
+}
+
+
