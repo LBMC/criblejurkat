@@ -49,6 +49,12 @@ x_raw <- read.flowSet(
   truncate_max_range = TRUE
 )
 
+
+fcs_raw <- load_data(data_dir)
+fcs_nonDebris <- rm_debris(fcs_raw)
+fcs_nonSinglets <- rm_nonsinglets(fcs_nonDebris)
+fcs_data <- rm_nonsinglets(fcs_nonSinglets)
+
 # plot measurment according to time
 system("mkdir -p results/gating/")
 data <- apply(matrix(sampleNames(x_raw), ncol = 1), 1, FUN = function(x, fset){
@@ -145,7 +151,8 @@ for (i in 1:length(x)) {
 }
 dev.off()
 
-data <- apply(matrix(sampleNames(x_fluo), ncol = 1), 1, FUN = function(x, fset){
+
+data <- apply(matrix(sampleNames(fcs_data), ncol = 1), 1, FUN = function(x, fset){
     data <- data.frame(exprs(fset[[x]]))
     data <- cbind(
       x,
@@ -153,7 +160,7 @@ data <- apply(matrix(sampleNames(x_fluo), ncol = 1), 1, FUN = function(x, fset){
       data
     )
     return(data)
-  }, fset = x_fluo
+  }, fset = fcs_data
 )
 data <- do.call(rbind, data)
 names(data)[1:2] <- c("well", "step")
@@ -187,7 +194,7 @@ data <- apply(matrix(sampleNames(x), ncol = 1), 1,
     return(data)
   },
   fset = x,
-  infos = pData(phenoData(x))
+  infos = pData(phenoData(x_fluo))
 )
 data <- do.call(rbind, data)
 names(data)[1:2] <- c("well", "step")
