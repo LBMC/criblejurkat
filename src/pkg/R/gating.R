@@ -19,7 +19,7 @@ rm_debris <- function(fcs_data) {
     width = 80.3, height = 110.7
   )
   par(mfrow = c(16, 6))
-  for (i in 1:length(x)) {
+  for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(
       fcs_data[[i]],
       varNames=c("FSC.A", "SSC.A"),
@@ -83,7 +83,6 @@ rm_nonsinglets <- function(fcs_data) {
     filename = paste0(outdir, "singlets.pdf"), plot = p,
     width = 29.7, height = 21, units = "cm", scale = 2
   )
-  # gating fluo
   fcs_singlets <- getData(wf, "singlets")
   return(fcs_singlets)
 }
