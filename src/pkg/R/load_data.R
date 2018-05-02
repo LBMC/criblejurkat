@@ -116,7 +116,7 @@ load_data <- function(data_path) {
 #' }
 #' @export project_name
 project_name <- function(fcs_data) {
-  gsub("data/(.+)/.*fcs", "\\1", rownames(pData(x_fluo)), perl=T)[1]
+  gsub("data/(.+)/.*fcs", "\\1", rownames(pData(fcs_data)), perl=T)[1]
 }
 
 #' create outdir
