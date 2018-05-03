@@ -110,13 +110,14 @@ load_data <- function(data_path) {
 #'
 #' @param fcs_dat an object of class flowSet
 #' @return the name of the project
+#' @importFrom flowCore pData
 #' @examples
 #' \dontrun{
 #' project_name(fcs_data)
 #' }
 #' @export project_name
 project_name <- function(fcs_data) {
-  gsub("data/(.+)/.*fcs", "\\1", rownames(pData(fcs_data)), perl=T)[1]
+  gsub("data/(.+)/.*fcs", "\\1", rownames(flowCore::pData(fcs_data)), perl=T)[1]
 }
 
 #' create outdir
