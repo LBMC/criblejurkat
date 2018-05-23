@@ -32,12 +32,24 @@ flowset2dataframe <- function(fsc_data, channels = c("Y1.A", "B1.A")) {
   data <- data.frame(do.call(rbind, data))
   names(data)[1:2] <- c("well", "step")
   data$name <- as.factor(data$name)
+  data$drug <- as.vector(data$drug)
+  data <- compute_ratio(data, channels)
+  data <- parse_drug(data)
+  return(data)
+}
+
+compute_ratio <- function(data, channels) {
   b_ratio_1 <- colnames(data) %in% channels[1]
   b_ratio_2 <- colnames(data) %in% channels[2]
-  data$ratio <- data[, b_ratio_1] / data[, b_ratio_2]
+  data$ratio <- as.vector(data[, b_ratio_1] / data[, b_ratio_2])
+  return(data)
+}
+
+parse_drug <- function(data) {
   b_drug <- !(data$drug %in% "None")
-  data$drug[b_drug] <- paste0(data$drug[b_drug], data$well[b_drug])
-  data$drug <- as.factor((data$drug)
+  data$drug[b_drug] <- paste0(as.vector(data$drug[b_drug]), "_",
+                              as.vector(data$code.well[b_drug]))
+  data$drug <- as.factor(data$drug)
   data$drug <- relevel(data$drug, "None")
   return(data)
 }
