@@ -36,6 +36,7 @@ flowset2dataframe <- function(fsc_data, channels = c("Y1.A", "B1.A")) {
   data <- compute_ratio(data, channels)
   data <- parse_drug(data)
   data <- compute_line_column(data)
+  data <- batch_effect(data)
   return(data)
 }
 
@@ -64,6 +65,25 @@ compute_line_column <- function(data) {
 }
 
 batch_effect <- function(data) {
-  well_number <- as.numric(as.factor(data$code.well))
-  b_drug <- !(data$drug %in% "None")
+  b_drug <- data$drug %in% "None"
+  well_number <- as.numeric(as.factor(data$code.well[!b_drug]))
+  drug_number <- as.numeric(as.factor(data$code.well[b_drug]))
+  well_number <- as.numeric(levels(as.factor(well_number)))
+  drug_number <- as.numeric(levels(as.factor(drug_number)))
+  none_dist <- matrix(
+    data = rep(
+      NA, length(well_number) * length(drug_number)
+    ),
+    ncol = length(drug_number)
+  )
+  j <- 1
+  for (i in drug_number) {
+    none_dist[, j] <- abs(well_number - i)
+    j <- j + 1
+  }
+  none_closest <- apply(none_dist, 1, FUN = function(x){
+    which(x %in% min(x))[1]
+  })
+  data$batch <- drug_number[none_closest]
+  return(data)
 }
