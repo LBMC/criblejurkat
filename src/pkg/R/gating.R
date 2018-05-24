@@ -58,7 +58,7 @@ rm_debris <- function(fcs_data) {
 #' fsc_data <- rm_nonsinglets(fsc_data)
 #' }
 #' @importFrom flowClust flowClust getEstimates split
-#' @importFrom flowWorkspace GatingSet asinhtGml2_trans transformerList
+#' @importFrom flowWorkspace GatingSet transformerList flowJoTrans
 #' @importFrom flowCore transform
 #' @importFrom openCyto add_pop
 #' @importFrom ggcyto ggcyto geom_gate ggcyto_par_set
@@ -67,13 +67,13 @@ rm_debris <- function(fcs_data) {
 rm_nonsinglets <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
   wf <- flowWorkspace::GatingSet(fcs_data)
-  asinhTrans <- flowWorkspace::asinhtGml2_trans()
-  tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), asinhTrans)
+  flowJoTrans <- flowWorkspace::flowJoTrans()
+  tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), flowJoTrans)
   wf <- flowCore::transform(wf, tl)
   openCyto::add_pop(
     wf, alias = "singlets", pop = "+", parent = "root",
     dims = "FSC.A,FSC.H", gating_method = "singletGate",
-    gating_args = "wider_gate=TRUE"
+    gating_args = "wider_gate=TRUE, maxit = 100"
   )
   p <- ggcyto::ggcyto(wf, mapping = ggplot2::aes(x = FSC.A,y = FSC.H)) +
     ggplot2::geom_hex(bins = 50) +
