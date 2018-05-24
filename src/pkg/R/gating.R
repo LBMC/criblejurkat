@@ -103,7 +103,7 @@ rm_nonfluo <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
   fcs_fluo <- fcs_data
   pdf(paste0(outdir, "fluo.pdf"), width = 29,7, height = 21)
-  par(mfrow = c(12, 8))
+  par(mfrow = c(8, 12))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
     plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
