@@ -18,7 +18,7 @@ rm_debris <- function(fcs_data) {
     ),
     width = 80.3, height = 110.7
   )
-  par(mfrow = c(16, 6))
+  par(mfrow = c(8, 12))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(
       fcs_data[[i]],
@@ -62,13 +62,13 @@ rm_debris <- function(fcs_data) {
 #' @importFrom flowCore transform
 #' @importFrom openCyto add_pop
 #' @importFrom ggcyto ggcyto geom_gate ggcyto_par_set
-#' @importFrom ggplot2 geom_hex labs ggsave aes
+#' @importFrom ggplot2 geom_hex labs ggsave aes facet_wrap
 #' @export rm_nonsinglets
 rm_nonsinglets <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
   wf <- flowWorkspace::GatingSet(fcs_data)
-  flowJoTrans <- flowWorkspace::flowJoTrans()
-  tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), flowJoTrans)
+  bi_expTrans <- flowWorkspace::flowJoTrans()
+  tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), bi_expTrans)
   wf <- flowCore::transform(wf, tl)
   openCyto::add_pop(
     wf, alias = "singlets", pop = "+", parent = "root",
@@ -79,7 +79,8 @@ rm_nonsinglets <- function(fcs_data) {
     ggplot2::geom_hex(bins = 50) +
     ggcyto::geom_gate("singlets") +
     ggcyto::ggcyto_par_set(limits = "instrument") +
-    ggplot2::labs(title = "Singlets gate")
+    ggplot2::labs(title = "Singlets gate") +
+    ggplot2::facet_wrap(~well, ncol = 12)
   ggplot2::ggsave(
     filename = paste0(outdir, "singlets.pdf"), plot = p,
     width = 29.7, height = 21, units = "cm", scale = 2
@@ -102,7 +103,7 @@ rm_nonfluo <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
   fcs_fluo <- fcs_data
   pdf(paste0(outdir, "fluo.pdf"), width = 80.3, height = 110.7)
-  par(mfrow = c(16, 6))
+  par(mfrow = c(12, 8))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
     plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
