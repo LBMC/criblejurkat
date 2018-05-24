@@ -16,7 +16,7 @@ rm_debris <- function(fcs_data) {
       outdir,
       "nonDebris.pdf"
     ),
-    width = 80.3, height = 110.7
+    width = 29.7, height = 21
   )
   par(mfrow = c(8, 12))
   for (i in 1:length(fcs_data)) {
@@ -102,7 +102,7 @@ rm_nonsinglets <- function(fcs_data) {
 rm_nonfluo <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
   fcs_fluo <- fcs_data
-  pdf(paste0(outdir, "fluo.pdf"), width = 80.3, height = 110.7)
+  pdf(paste0(outdir, "fluo.pdf"), width = 29,7, height = 21)
   par(mfrow = c(12, 8))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
