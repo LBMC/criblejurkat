@@ -50,7 +50,7 @@ power_trans <- function(data, formula = "ratio ~ drug + batch",
                         lambda = seq(-2, 10, 1/10))
   lambda <- model$x[model$y == max(model$y)]
   power_tr <- scales::boxcox_trans(lambda)
-  power_tr <- power_trans$transform
+  power_tr <- power_tr$transform
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
   data[[paste0(variable_name, "_norm")]] <-power_tr(data[[variable_name]])
   return(data)
@@ -106,6 +106,17 @@ batch_effect <- function(data) {
   return(data)
 }
 
+#' build rm model between drugs accounting for batch effect
+#'
+#' @param data a data.frame
+#' @param formula (default: "ratio ~ drug + batch") the formula of the model
+#' @return a data.frame
+#' @examples
+#' \dontrun{
+#' data <- anova_rlm(data)
+#' }
+#' @importFrom MASS rlm
+#' @export anova_rlm
 anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
   model <- MASS::rlm(as.formula(formula),
