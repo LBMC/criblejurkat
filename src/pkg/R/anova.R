@@ -105,3 +105,49 @@ batch_effect <- function(data) {
   data$batch <- as.factor(none_closest[as.numeric(as.factor(data$code.well))])
   return(data)
 }
+
+anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
+  variable_name <- gsub("(.*) ~.*", "\\1", formula)
+  model <- MASS::rlm(as.formula(formula),
+                     data = data,
+                     psi = psi.huber,
+                     k = quantile(data[[variable_name]], 0.90))
+  outdir <- mk_outdir(fcs_data, "test")
+  pdf(
+    paste0(
+      outdir,
+      "anova_rlm.pdf"
+    ),
+    width = 80.3, height = 110.7
+  )
+  par(mfrow=c(4,2))
+  plot(model)
+  plot(1:nrow(data), residuals(model))
+  plot(data$drug, residuals(model))
+  plot(data$batch, residuals(model))
+  dev.off()
+  summodel <- summary(model)
+  model_anova <- data.frame(summodel$coefficients)
+  model_anova$p.value =  2*pt(
+    abs(model_anova$t.value),
+    summodel$df[2],
+    lower.tail=FALSE
+  )
+  model_anova$signif <- model_anova$p.value < 0.0001
+  write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
+  data$signif <- NA
+  data$coef <- NA
+  data$coef_std <- NA
+  data$pval <- NA
+  data$tval <- NA
+  for (drug in levels(data$drug)) {
+    if (is.na(drug %in% "None")) {
+      data$signif[data$drug %in% drug] <- model_anova$signif[grepl(drug, rownames(model_anova))]
+      data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug, rownames(model_anova))]
+      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug, rownames(model_anova)), 2]
+      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug, rownames(model_anova))]
+      data$pval[data$drug %in% drug] <- model_anova$p.value[grepl(drug, rownames(model_anova))]
+    }
+  }
+  return(data)
+}
