@@ -33,10 +33,26 @@ flowset2dataframe <- function(fsc_data, channels = c("Y1.A", "B1.A")) {
   names(data)[1:2] <- c("well", "step")
   data$name <- as.factor(data$name)
   data$drug <- as.vector(data$drug)
-  data <- compute_ratio(data, channels)
   data <- parse_drug(data)
   data <- compute_line_column(data)
   data <- batch_effect(data)
+  data <- compute_ratio(data, channels)
+  data <- power_trans(data)
+  return(data)
+}
+
+#' @importFrom MASS boxcox
+#' @importFrom scales boxcox_trans
+power_trans <- function(data, formula = "ratio ~ drug + batch",
+                        sample_size =  nrow(data)/100) {
+  s_data <- data[sample(1:nrow(data), sample_size), ]
+  model <- MASS::boxcox(as.formula(formula), data = s_data,
+                        lambda = seq(-2, 10, 1/10))
+  lambda <- model$x[model$y == max(model$y)]
+  power_tr <- scales::boxcox_trans(lambda)
+  power_tr <- power_trans$transform
+  variable_name <- gsub("(.*) ~.*", "\\1", formula)
+  data[[paste0(variable_name, "_norm")]] <-power_tr(data[[variable_name]])
   return(data)
 }
 
@@ -66,7 +82,7 @@ compute_line_column <- function(data) {
 
 batch_effect <- function(data) {
   b_drug <- data$drug %in% "None"
-  well_number <- as.numeric(as.factor(data$code.well[!b_drug]))
+  well_number <- as.numeric(as.factor(data$code.well))
   drug_number <- as.numeric(as.factor(data$code.well[b_drug]))
   well_number <- as.numeric(levels(as.factor(well_number)))
   drug_number <- as.numeric(levels(as.factor(drug_number)))
@@ -84,6 +100,8 @@ batch_effect <- function(data) {
   none_closest <- apply(none_dist, 1, FUN = function(x){
     which(x %in% min(x))[1]
   })
-  data$batch <- drug_number[none_closest]
+  none_closest <- drug_number[none_closest]
+  names(none_closest) <- 1:length(none_closest)
+  data$batch <- as.factor(none_closest[as.numeric(as.factor(data$code.well))])
   return(data)
 }
