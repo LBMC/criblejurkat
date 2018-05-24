@@ -91,9 +91,21 @@ load_data <- function(data_path) {
       paste0(data_dir, "/annotation.csv"), sep = ";", header = TRUE
     )
   } else {
-    stop(print0(
-      "error: ", data_path, " doesn't contain an annotation.csv file"
-    ))
+    annotation <- tryCatch({
+      annotation_files <- get_files(data_dir, ".csv")
+      print(paste0(
+        "warning: no annotation.csv file found. Loading ",
+        annotation_files[1]
+      ))
+      read.csv(
+        annotation_files[1], sep = ";", header = TRUE
+      )
+    }, error = function(e){
+      stop(paste0(
+        "error: load_data(). no annotation.csv file found in ",
+        data_path
+      ))
+    })
   }
   annotation <- as(annotation, "AnnotatedDataFrame")
   rownames(annotation) <- fcs_files
@@ -117,7 +129,13 @@ load_data <- function(data_path) {
 #' }
 #' @export project_name
 project_name <- function(fcs_data) {
-  gsub("data/(.+)/.*fcs", "\\1", rownames(flowCore::pData(fcs_data)), perl=T)[1]
+  if (is.data.frame(fcs_data)) {
+    well <- fcs_data$well
+  } else {
+    well <- rownames(flowCore::pData(fcs_data))
+  }
+
+  gsub("data/(.+)/.*fcs", "\\1", well, perl=T)[1]
 }
 
 #' create outdir
@@ -130,7 +148,7 @@ project_name <- function(fcs_data) {
 #' mk_outdir(fcs_data, "gating")
 #' }
 #' @export project_name
-mk_outdir <- function(fcs_data, folder){
+mk_outdir <- function(fcs_data, folder) {
   outdir <- paste0(
     "results/",
     project_name(fcs_data),
@@ -139,3 +157,5 @@ mk_outdir <- function(fcs_data, folder){
   dir.create(outdir, recursive = TRUE)
   return(outdir)
 }
+
+
