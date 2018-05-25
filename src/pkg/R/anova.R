@@ -47,7 +47,8 @@ power_trans <- function(data, formula = "ratio ~ drug + batch",
                         sample_size =  nrow(data)/100) {
   s_data <- data[sample(1:nrow(data), sample_size), ]
   model <- MASS::boxcox(as.formula(formula), data = s_data,
-                        lambda = seq(-2, 10, 1/10))
+                        lambda = seq(-2, 10, 1/10),
+                        plotit = FALSE)
   lambda <- model$x[model$y == max(model$y)]
   power_tr <- scales::boxcox_trans(lambda)
   power_tr <- power_tr$transform
@@ -129,9 +130,8 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
       outdir,
       "anova_rlm.pdf"
     ),
-    width = 80.3, height = 110.7
+    width = 21, height = 29.7
   )
-  par(mfrow=c(4,2))
   plot(model)
   plot(1:nrow(data), residuals(model))
   plot(data$drug, residuals(model))
@@ -152,7 +152,8 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
   data$pval <- NA
   data$tval <- NA
   for (drug in levels(data$drug)) {
-    if (is.na(drug %in% "None")) {
+    if (!(drug %in% "None")) {
+      print(drug)
       data$signif[data$drug %in% drug] <- model_anova$signif[grepl(drug, rownames(model_anova))]
       data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug, rownames(model_anova))]
       data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug, rownames(model_anova)), 2]
