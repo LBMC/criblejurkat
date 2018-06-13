@@ -7,18 +7,20 @@
 #' fsc_data <- rm_debris(fsc_data)
 #' }
 #' @importFrom flowClust flowClust getEstimates split plot
+#' @importFrom grDevices dev.off pdf
+#' @importFrom graphics abline par
 #' @export rm_debris
 rm_debris <- function(fcs_data) {
   fcs_nonDebris <- fcs_data
   outdir <- mk_outdir(fcs_data, "gating")
-  pdf(
+  grDevices::pdf(
     paste0(
       outdir,
       "nonDebris.pdf"
     ),
     width = 29.7, height = 21
   )
-  par(mfrow = c(8, 12))
+  graphics::par(mfrow = c(8, 12))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(
       fcs_data[[i]],
@@ -34,7 +36,7 @@ rm_debris <- function(fcs_data) {
     Debris <- which(
       cluster_location[,1] == min(cluster_location[,1])
     )
-    abline(v = cluster_location[nonDebris,1],
+    graphics::abline(v = cluster_location[nonDebris,1],
            h = cluster_location[nonDebris,2])
     fcs_nonDebris[[i]] <- flowClust::split(
       fcs_data[[i]],
@@ -45,7 +47,7 @@ rm_debris <- function(fcs_data) {
       )
     )$nonDebris
   }
-  dev.off()
+  grDevices::dev.off()
   return(fcs_nonDebris)
 }
 
@@ -58,7 +60,7 @@ rm_debris <- function(fcs_data) {
 #' fsc_data <- rm_nonsinglets(fsc_data)
 #' }
 #' @importFrom flowClust flowClust getEstimates split
-#' @importFrom flowWorkspace GatingSet transformerList flowJo_biexp_trans
+#' @importFrom flowWorkspace GatingSet transformerList flowJo_biexp_trans getData
 #' @importFrom flowCore transform
 #' @importFrom openCyto add_pop
 #' @importFrom ggcyto ggcyto geom_gate ggcyto_par_set
@@ -85,7 +87,7 @@ rm_nonsinglets <- function(fcs_data) {
     filename = paste0(outdir, "singlets.pdf"), plot = p,
     width = 29.7, height = 21, units = "cm", scale = 2
   )
-  fcs_singlets <- getData(wf, "singlets")
+  fcs_singlets <- flowWorkspace::getData(wf, "singlets")
   return(fcs_singlets)
 }
 
@@ -98,15 +100,17 @@ rm_nonsinglets <- function(fcs_data) {
 #' fsc_data <- rm_nonfluo(fsc_data)
 #' }
 #' @importFrom flowClust flowClust getEstimates split
+#' @importFrom grDevices dev.off pdf
+#' @importFrom graphics plot par
 #' @export rm_nonfluo
 rm_nonfluo <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
   fcs_fluo <- fcs_data
-  pdf(paste0(outdir, "fluo.pdf"), width = 29,7, height = 21)
-  par(mfrow = c(8, 12))
+  grDevices::pdf(paste0(outdir, "fluo.pdf"), width = 29,7, height = 21)
+  graphics::par(mfrow = c(8, 12))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
-    plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
+    graphics::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
     fcs_fluo[[i]] <- flowClust::split(
       fcs_data[[i]],
       res1,
@@ -115,7 +119,7 @@ rm_nonfluo <- function(fcs_data) {
       )
     )$fluo
   }
-  dev.off()
+  grDevices::dev.off()
   return(fcs_fluo)
 }
 

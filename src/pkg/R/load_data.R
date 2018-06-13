@@ -22,6 +22,7 @@ load_crap <- function(annotation) {
 #'
 #' @param data_path path to the csv folder
 #' @return a data.frame
+#' @importFrom utils read.table
 #' @examples
 #' \dontrun{
 #' load_annotation("data/examples/")
@@ -29,20 +30,22 @@ load_crap <- function(annotation) {
 #' @export load_annotation
 load_annotation <- function(data_path) {
   annotation_path <- paste0(data_path, "annotation.csv")
-  annotation <- read.table(annotation_path, h = T, sep = ";", stringsAsFactors = F)
+  annotation <- utils::read.table(annotation_path, h = T, sep = ";", stringsAsFactors = F)
   annotation$dapi <- as.factor(annotation$dapi)
   annotation$drug.time <- factor(paste(annotation$drug,".",  annotation$time, "UT", sep = ""))
   return(annotation)
 }
 
+#' @importFrom utils read.table
 load_channel <- function(data_path) {
   channel_path <- paste0(data_path, "channels.csv")
-  channels <- read.table(channel_path, h = T, sep = ";", stringsAsFactors = F)
+  channels <- utils::read.table(channel_path, h = T, sep = ";", stringsAsFactors = F)
 }
 
 #' get list of file from a folder
 #'
-#' @param data_path path to the data folder
+#' @param path path to the data folder
+#' @param regexp regexp that match the file names
 #' @return list of file names
 #' @examples
 #' \dontrun{
@@ -55,8 +58,8 @@ get_files <- function(path, regexp) {
   file_list <- file_list[grepl(regexp, file_list, perl = T)]
   file_list <- as.vector(unlist(file_list))
   if (length(file_list) == 0) {
-    stop(print0(
-      "error: ", data_path, " contain no ", regexp, " files."
+    stop(paste0(
+      "error: ", path, " contain no ", regexp, " files."
     ))
   }
   return(file_list)
@@ -72,32 +75,34 @@ get_files <- function(path, regexp) {
 #' }
 #' @importFrom flowCore read.flowSet
 #' @importFrom BioBase AnnotatedDataFrame
+#' @importFrom utils read.csv
+#' @importFrom methods as
 #' @export load_data
 load_data <- function(data_path) {
   if (base::file.info(data_path)$isdir) {
-    fcs_files <- get_files(data_dir, ".fcs")
+    fcs_files <- get_files(data_path, ".fcs")
   } else {
-    stop(print0(
+    stop(paste0(
       "error: ", data_path, " is not a directory"
     ))
   }
   if (base::length(fcs_files) < 1) {
-    stop(print0(
+    stop(paste0(
       "error: ", data_path, " doesn't contain .fcs files"
     ))
   }
-  if (base::file.exists(paste0(data_dir, "/annotation.csv"))) {
-    annotation <- read.csv(
-      paste0(data_dir, "/annotation.csv"), sep = ";", header = TRUE
+  if (base::file.exists(paste0(data_path, "/annotation.csv"))) {
+    annotation <- utils::read.csv(
+      paste0(data_path, "/annotation.csv"), sep = ";", header = TRUE
     )
   } else {
     annotation <- tryCatch({
-      annotation_files <- get_files(data_dir, ".csv")
+      annotation_files <- get_files(data_path, ".csv")
       print(paste0(
         "warning: no annotation.csv file found. Loading ",
         annotation_files[1]
       ))
-      read.csv(
+      utils::read.csv(
         annotation_files[1], sep = ";", header = TRUE
       )
     }, error = function(e){
@@ -107,7 +112,7 @@ load_data <- function(data_path) {
       ))
     })
   }
-  annotation <- as(annotation, "AnnotatedDataFrame")
+  annotation <- methods::as(annotation, "AnnotatedDataFrame")
   rownames(annotation) <- fcs_files
   fcs_data <- flowCore::read.flowSet(
     transformation = F,
@@ -120,7 +125,7 @@ load_data <- function(data_path) {
 
 #' get project name
 #'
-#' @param fcs_dat an object of class flowSet
+#' @param fcs_data an object of class flowSet
 #' @return the name of the project
 #' @importFrom flowCore pData
 #' @examples
@@ -140,8 +145,8 @@ project_name <- function(fcs_data) {
 
 #' create outdir
 #'
-#' @param fcs_dat an object of class flowSet
-#' @param outdir a directory name
+#' @param fcs_data an object of class flowSet
+#' @param folder a directory name
 #' @return the name of the project
 #' @examples
 #' \dontrun{

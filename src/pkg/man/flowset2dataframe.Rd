@@ -4,13 +4,13 @@
 \alias{flowset2dataframe}
 \title{convert annotated flowSet to data.frame}
 \usage{
-flowset2dataframe(fsc_data, channels = c("Y1.A", "B1.A"))
+flowset2dataframe(fcs_data, channels = c("Y1.A", "B1.A"))
 }
 \arguments{
+\item{fcs_data}{an object of class flowSet}
+
 \item{channels}{(default = c("Y1.A", "B1.A)) the column ratio will be the
 ratio of Y1.A / B1.A}
-
-\item{fcs_data}{an object of class flowSet}
 }
 \value{
 a data.frame

@@ -7,7 +7,9 @@
 get_files(path, regexp)
 }
 \arguments{
-\item{data_path}{path to the data folder}
+\item{path}{path to the data folder}
+
+\item{regexp}{regexp that match the file names}
 }
 \value{
 list of file names

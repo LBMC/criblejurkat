@@ -8,5 +8,4 @@ test_that("loading data", {
   expect_equal(
     10:6,
     10:6)
-)
 })

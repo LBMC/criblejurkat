@@ -7,7 +7,7 @@
 project_name(fcs_data)
 }
 \arguments{
-\item{fcs_dat}{an object of class flowSet}
+\item{fcs_data}{an object of class flowSet}
 }
 \value{
 the name of the project

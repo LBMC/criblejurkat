@@ -8,14 +8,14 @@
 #' \dontrun{
 #' data <- flowset2dataframe(fsc_data)
 #' }
-#' @importFrom flowCore sampleNames pData phenoData
+#' @importFrom flowCore sampleNames pData phenoData exprs
 #' @importFrom flowWorkspace GatingSet
 #' @export flowset2dataframe
-flowset2dataframe <- function(fsc_data, channels = c("Y1.A", "B1.A")) {
+flowset2dataframe <- function(fcs_data, channels = c("Y1.A", "B1.A")) {
   data <- fcs_data
   data <- apply(matrix(flowCore::sampleNames(data), ncol = 1), 1,
     FUN = function(x, fset, infos){
-      data <- data.frame(exprs(fset[[x]]))
+      data <- data.frame(flowCore::exprs(fset[[x]]))
       infos <- infos[rownames(infos) %in% x, ]
       data <- base::data.frame(
         x,
@@ -43,10 +43,10 @@ flowset2dataframe <- function(fsc_data, channels = c("Y1.A", "B1.A")) {
 
 #' @importFrom MASS boxcox
 #' @importFrom scales boxcox_trans
-power_trans <- function(data, formula = "ratio ~ drug + batch",
+power_trans <- function(data, formula = "ratio ~ batch",
                         sample_size =  nrow(data)/100) {
   s_data <- data[sample(1:nrow(data), sample_size), ]
-  model <- MASS::boxcox(as.formula(formula), data = s_data,
+  model <- MASS::boxcox(stats::as.formula(formula), data = s_data,
                         lambda = seq(-2, 10, 1/10),
                         plotit = FALSE)
   lambda <- model$x[model$y == max(model$y)]
@@ -64,13 +64,14 @@ compute_ratio <- function(data, channels) {
   return(data)
 }
 
+#' @importFrom stats relevel
 parse_drug <- function(data) {
   data$drug_status <- as.factor(data$drug)
   b_drug <- !(data$drug %in% "None")
   data$drug[b_drug] <- paste0(as.vector(data$drug[b_drug]), "_",
                               as.vector(data$code.well[b_drug]))
   data$drug <- as.factor(data$drug)
-  data$drug <- relevel(data$drug, "None")
+  data$drug <- stats::relevel(data$drug, "None")
   return(data)
 }
 
@@ -116,36 +117,39 @@ batch_effect <- function(data) {
 #' \dontrun{
 #' data <- anova_rlm(data)
 #' }
-#' @importFrom MASS rlm
+#' @importFrom MASS rlm psi.huber
+#' @importFrom grDevices dev.off pdf
+#' @importFrom stats as.formula pt quantile pt
+#' @importFrom utils write.csv
 #' @export anova_rlm
 anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
-  model <- MASS::rlm(as.formula(formula),
+  model <- MASS::rlm(stats::as.formula(formula),
                      data = data,
-                     psi = psi.huber,
-                     k = quantile(data[[variable_name]], 0.90))
-  outdir <- mk_outdir(fcs_data, "test")
-  pdf(
+                     psi = MASS::psi.huber,
+                     k = stats::quantile(data[[variable_name]], 0.90))
+  outdir <- mk_outdir(data, "test")
+  grDevices::pdf(
     paste0(
       outdir,
       "anova_rlm.pdf"
     ),
     width = 21, height = 29.7
   )
-  plot(model)
-  plot(1:nrow(data), residuals(model))
-  plot(data$drug, residuals(model))
-  plot(data$batch, residuals(model))
-  dev.off()
+  graphics::plot(model)
+  graphics::plot(1:nrow(data), stats::residuals(model))
+  graphics::plot(data$drug, stats::residuals(model))
+  graphics::plot(data$batch, stats::residuals(model))
+  grDevices::dev.off()
   summodel <- summary(model)
   model_anova <- data.frame(summodel$coefficients)
-  model_anova$p.value =  2*pt(
+  model_anova$p.value =  2 * stats::pt(
     abs(model_anova$t.value),
     summodel$df[2],
     lower.tail=FALSE
   )
   model_anova$signif <- model_anova$p.value < 0.0001
-  write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
+  utils::write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
   data$signif <- NA
   data$coef <- NA
   data$coef_std <- NA
