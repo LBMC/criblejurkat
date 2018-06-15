@@ -99,9 +99,9 @@ rm_nonsinglets <- function(fcs_data) {
 #' \dontrun{
 #' fsc_data <- rm_nonfluo(fsc_data)
 #' }
-#' @importFrom flowClust flowClust getEstimates split
+#' @importFrom flowClust flowClust getEstimates split plot
 #' @importFrom grDevices dev.off pdf
-#' @importFrom graphics plot par
+#' @importFrom graphics par
 #' @export rm_nonfluo
 rm_nonfluo <- function(fcs_data) {
   outdir <- mk_outdir(fcs_data, "gating")
@@ -110,7 +110,7 @@ rm_nonfluo <- function(fcs_data) {
   graphics::par(mfrow = c(8, 12))
   for (i in 1:length(fcs_data)) {
     res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
-    graphics::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
+    flowClust::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
     fcs_fluo[[i]] <- flowClust::split(
       fcs_data[[i]],
       res1,
