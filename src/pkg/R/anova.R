@@ -124,7 +124,6 @@ batch_effect <- function(data) {
 #' @importFrom MASS rlm psi.huber
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats as.formula quantile
-#' @importFrom utils write.csv
 #' @export anova_rlm
 anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE) {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
@@ -132,41 +131,11 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE) {
                      data = data,
                      psi = MASS::psi.huber,
                      k = stats::quantile(data[[variable_name]], 0.90))
-  model_anova <- compute_pval(model_anova, lower = lower)
+  model_anova <- compute_pval(model, lower = lower)
   outdir <- mk_outdir(data, "test")
   save(model, file = paste0(outdir, "anova_rlm.Rdata"))
-  grDevices::pdf(
-    paste0(
-      outdir,
-      "anova_rlm.pdf"
-    ),
-    width = 21, height = 29.7
-  )
-  graphics::plot(model)
-  graphics::plot(1:nrow(data), stats::residuals(model))
-  graphics::plot(data$drug, stats::residuals(model))
-  graphics::plot(data$batch, stats::residuals(model))
-  grDevices::dev.off()
-  utils::write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
-  data$signif <- NA
-  data$coef <- NA
-  data$coef_std <- NA
-  data$pval <- NA
-  data$tval <- NA
-  for (drug in levels(data$drug)) {
-    if (!(drug %in% "None")) {
-      data$signif[data$drug %in% drug] <- model_anova$signif[grepl(drug,
-        rownames(model_anova))]
-      data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug,
-        rownames(model_anova))]
-      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug,
-        rownames(model_anova)), 2]
-      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
-        rownames(model_anova))]
-      data$pval[data$drug %in% drug] <- model_anova$p.value[grepl(drug,
-        rownames(model_anova))]
-    }
-  }
+  data <- export_rlm_results(data, model_anova)
+  export_drug_table(data, model_anova, outdir)
   return(data)
 }
 
@@ -180,4 +149,39 @@ compute_pval <- function(model, lower = TRUE) {
     lower.tail=TRUE
   )
   return(model_anova)
+}
+
+#' @importFrom utils write.csv
+export_rlm_results <- function(data, model_anova) {
+  data$coef <- NA
+  data$coef_std <- NA
+  data$pval <- NA
+  data$tval <- NA
+  for (drug in levels(data$drug)) {
+    if (!(drug %in% "None")) {
+      data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug,
+        rownames(model_anova))]
+      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug,
+        rownames(model_anova)), 2]
+      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
+        rownames(model_anova))]
+      data$pval[data$drug %in% drug] <- model_anova$p.value[grepl(drug,
+        rownames(model_anova))]
+    }
+  }
+  return(data)
+}
+
+export_drug_table <- function(data, model_anova, outdir,
+                              channels = c("Y1.A", "B1.A")) {
+  drug_table <- model_anova[grepl("drug", rownames(model_anova)), ]
+  drug_name <- rownames(model_anova)[grepl("drug", rownames(model_anova))]
+  for (channel in channels) {
+    drug_mean <- c(by(data[, which(colnames(data) %in% channel)],
+                                  data$drug, mean))
+    drug_test <- paste0("drug",names(drug_mean)) %in% rownames(drug_table)
+    drug_table[[channel]] <- drug_mean[drug_test]
+  }
+  utils::write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
+  utils::write.csv(drug_table, file = paste0(outdir, "anova_rlm_drug.csv"))
 }
