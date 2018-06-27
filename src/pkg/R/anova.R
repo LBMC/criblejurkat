@@ -115,6 +115,7 @@ batch_effect <- function(data) {
 #'
 #' @param data a data.frame
 #' @param formula (default: "ratio ~ drug + batch") the formula of the model
+#' @param lower (default: TRUE) tests if "y" (the ratio) is lower than in controls
 #' @return a data.frame
 #' @examples
 #' \dontrun{
@@ -122,15 +123,16 @@ batch_effect <- function(data) {
 #' }
 #' @importFrom MASS rlm psi.huber
 #' @importFrom grDevices dev.off pdf
-#' @importFrom stats as.formula pt quantile pt
+#' @importFrom stats as.formula quantile
 #' @importFrom utils write.csv
 #' @export anova_rlm
-anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
+anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE) {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
   model <- MASS::rlm(stats::as.formula(formula),
                      data = data,
                      psi = MASS::psi.huber,
                      k = stats::quantile(data[[variable_name]], 0.90))
+  model_anova <- compute_pval(model_anova, lower = lower)
   outdir <- mk_outdir(data, "test")
   save(model, file = paste0(outdir, "anova_rlm.Rdata"))
   grDevices::pdf(
@@ -145,14 +147,6 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
   graphics::plot(data$drug, stats::residuals(model))
   graphics::plot(data$batch, stats::residuals(model))
   grDevices::dev.off()
-  summodel <- summary(model)
-  model_anova <- data.frame(summodel$coefficients)
-  model_anova$p.value =  2 * stats::pt(
-    abs(model_anova$t.value),
-    summodel$df[2],
-    lower.tail=FALSE
-  )
-  model_anova$signif <- model_anova$p.value < 0.0001
   utils::write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
   data$signif <- NA
   data$coef <- NA
@@ -174,4 +168,16 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
     }
   }
   return(data)
+}
+
+#' @importFrom stats pt
+compute_pval <- function(model, lower = TRUE) {
+  summodel <- summary(model)
+  model_anova <- data.frame(summodel$coefficients)
+  model_anova$p.value =  stats::pt(
+    model_anova$t.value,
+    summodel$df[2],
+    lower.tail=TRUE
+  )
+  return(model_anova)
 }
