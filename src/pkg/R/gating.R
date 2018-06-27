@@ -9,8 +9,10 @@
 #' @importFrom flowClust flowClust getEstimates split plot
 #' @importFrom grDevices dev.off pdf
 #' @importFrom graphics abline par
+#' @importFrom utils txtProgressBar capture.output
 #' @export rm_debris
 rm_debris <- function(fcs_data) {
+  message("removing debris")
   fcs_nonDebris <- fcs_data
   outdir <- mk_outdir(fcs_data, "gating")
   grDevices::pdf(
@@ -21,14 +23,20 @@ rm_debris <- function(fcs_data) {
     width = 29.7, height = 21
   )
   graphics::par(mfrow = c(8, 12))
+  pb <- utils::txtProgressBar(min = 0, max = length(fcs_data),
+                             initial = 1, style = 3)
   for (i in 1:length(fcs_data)) {
-    res1 <- flowClust::flowClust(
-      fcs_data[[i]],
-      varNames=c("FSC.A", "SSC.A"),
-      K=2,
-      B=100
+    suppressMessages(
+      res1 <- flowClust::flowClust(
+        fcs_data[[i]],
+        varNames=c("FSC.A", "SSC.A"),
+        K=2,
+        B=100
+      )
     )
-    flowClust::plot(res1, data=fcs_data[[i]], level=0.95, z.cutoff=0)
+    utils::capture.output(
+      flowClust::plot(res1, data=fcs_data[[i]], level=0.95, z.cutoff=0)
+    )
     cluster_location <- flowClust::getEstimates(res1)$locations
     nonDebris <- which(
       cluster_location[,1] == max(cluster_location[,1])
@@ -46,7 +54,9 @@ rm_debris <- function(fcs_data) {
         Debris = Debris
       )
     )$nonDebris
+    utils::setTxtProgressBar(pb, i)
   }
+  close(pb)
   grDevices::dev.off()
   return(fcs_nonDebris)
 }
@@ -67,15 +77,20 @@ rm_debris <- function(fcs_data) {
 #' @importFrom ggplot2 geom_hex labs ggsave aes facet_wrap
 #' @export rm_nonsinglets
 rm_nonsinglets <- function(fcs_data) {
+  message("removing non-singlets")
   outdir <- mk_outdir(fcs_data, "gating")
-  wf <- flowWorkspace::GatingSet(fcs_data)
+  suppressMessages(
+    wf <- flowWorkspace::GatingSet(fcs_data)
+  )
   bi_expTrans <- flowWorkspace::flowJo_biexp_trans()
   tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), bi_expTrans)
   wf <- flowCore::transform(wf, tl)
-  openCyto::add_pop(
-    wf, alias = "singlets", pop = "+", parent = "root",
-    dims = "FSC.A,FSC.H", gating_method = "singletGate",
-    gating_args = "wider_gate=TRUE, maxit = 100"
+  suppressMessages(
+    openCyto::add_pop(
+      wf, alias = "singlets", pop = "+", parent = "root",
+      dims = "FSC.A,FSC.H", gating_method = "singletGate",
+      gating_args = "wider_gate=TRUE, maxit = 100"
+    )
   )
   p <- ggcyto::ggcyto(wf, mapping = ggplot2::aes(x = FSC.A,y = FSC.H)) +
     ggplot2::geom_hex(bins = 50) +
@@ -102,15 +117,24 @@ rm_nonsinglets <- function(fcs_data) {
 #' @importFrom flowClust flowClust getEstimates split plot
 #' @importFrom grDevices dev.off pdf
 #' @importFrom graphics par
+#' @importFrom utils txtProgressBar capture.output
 #' @export rm_nonfluo
 rm_nonfluo <- function(fcs_data) {
+  message("removing outliers")
   outdir <- mk_outdir(fcs_data, "gating")
   fcs_fluo <- fcs_data
   grDevices::pdf(paste0(outdir, "fluo.pdf"), width = 29,7, height = 21)
   graphics::par(mfrow = c(8, 12))
+  pb <- utils::txtProgressBar(min = 0, max = length(fcs_data),
+                             initial = 1, style = 3)
   for (i in 1:length(fcs_data)) {
-    res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"), K=1, B=100)
-    flowClust::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
+    suppressMessages(
+      res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"),
+                                   K=1, B=100)
+    )
+    utils::capture.output(
+      flowClust::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
+    )
     fcs_fluo[[i]] <- flowClust::split(
       fcs_data[[i]],
       res1,
@@ -118,7 +142,9 @@ rm_nonfluo <- function(fcs_data) {
         fluo = 1
       )
     )$fluo
+    utils::setTxtProgressBar(pb, i)
   }
+  close(pb)
   grDevices::dev.off()
   return(fcs_fluo)
 }
