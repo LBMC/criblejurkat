@@ -13,20 +13,20 @@
 #' @export plot_well
 plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
   s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
-  for (x in c("ratio_norm", "Y1.A", "B1.A")) {
+  for (x in c("ratio", "Y1.A", "B1.A")) {
     s_data$x <- s_data[[x]]
     mean_x <- by(s_data$x, s_data$code.well, mean)
     s_data$mean_x <- mean_x[s_data$code.well]
     p <- ggplot2::ggplot()
     if ("signif" %in% colnames(s_data)) {
-      p <- p + ggplot2::geom_violin(alpha = 0, data = s_data,
-          ggplot2::aes(x = code.well, y = x, color = signif))
+      p <- p + ggplot2::geom_violin(data = s_data,
+          ggplot2::aes(x = code.well, y = x, fill = signif))
     } else {
-      p <- p + ggplot2::geom_violin(alpha = 0, data = s_data,
-          ggplot2::aes(x = code.well, y = x, color = drug_status))
+      p <- p + ggplot2::geom_violin(data = s_data,
+          ggplot2::aes(x = code.well, y = x, fill = signif))
     }
     p <- p + ggplot2::geom_point(data = s_data,
-              ggplot2::aes(x = code.well, y = mean_x, color = drug_status)) +
+              ggplot2::aes(x = code.well, y = mean_x)) +
       ggplot2::facet_wrap(~code.well, scale = "free_x", ncol = 12) +
       ggplot2::labs(y = x) +
       ggplot2::theme_bw()
@@ -55,7 +55,7 @@ plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
 plot_column <- function(data, sample_size = nrow(data) / 100,
                               sufix = "") {
   s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
-  for (x in c("ratio_norm", "Y1.A", "B1.A")) {
+  for (x in c("ratio", "Y1.A", "B1.A")) {
     s_data$x <- s_data[[x]]
     mean_x <- by(s_data$x, s_data$column, mean)
     s_data$mean_x <- mean_x[s_data$column]
@@ -91,7 +91,7 @@ plot_column <- function(data, sample_size = nrow(data) / 100,
 #' @export plot_line
 plot_line <- function(data, sample_size = nrow(data) / 100, sufix = "") {
   s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
-  for (x in c("ratio_norm", "Y1.A", "B1.A")) {
+  for (x in c("ratio", "Y1.A", "B1.A")) {
     s_data$x <- s_data[[x]]
     mean_x <- by(s_data$x, s_data$line, mean)
     s_data$mean_x <- mean_x[s_data$line]
