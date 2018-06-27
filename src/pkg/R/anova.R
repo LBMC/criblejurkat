@@ -11,7 +11,8 @@
 #' @importFrom flowCore sampleNames pData phenoData exprs
 #' @importFrom flowWorkspace GatingSet
 #' @export flowset2dataframe
-flowset2dataframe <- function(fcs_data, channels = c("Y1.A", "B1.A")) {
+flowset2dataframe <- function(fcs_data, channels = c("Y1.A", "B1.A"),
+                              norm = TRUE) {
   data <- fcs_data
   data <- apply(matrix(flowCore::sampleNames(data), ncol = 1), 1,
     FUN = function(x, fset, infos){
@@ -37,7 +38,9 @@ flowset2dataframe <- function(fcs_data, channels = c("Y1.A", "B1.A")) {
   data <- compute_line_column(data)
   data <- batch_effect(data)
   data <- compute_ratio(data, channels)
-  data <- power_trans(data)
+  if (norm) {
+    data <- power_trans(data)
+  }
   return(data)
 }
 
@@ -128,9 +131,8 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
                      data = data,
                      psi = MASS::psi.huber,
                      k = stats::quantile(data[[variable_name]], 0.90))
-
-  utils::save(model, file = paste0(outdir, "anova_rlm.Rdata"))
   outdir <- mk_outdir(data, "test")
+  save(model, file = paste0(outdir, "anova_rlm.Rdata"))
   grDevices::pdf(
     paste0(
       outdir,
@@ -159,12 +161,16 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
   data$tval <- NA
   for (drug in levels(data$drug)) {
     if (!(drug %in% "None")) {
-      print(drug)
-      data$signif[data$drug %in% drug] <- model_anova$signif[grepl(drug, rownames(model_anova))]
-      data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug, rownames(model_anova))]
-      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug, rownames(model_anova)), 2]
-      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug, rownames(model_anova))]
-      data$pval[data$drug %in% drug] <- model_anova$p.value[grepl(drug, rownames(model_anova))]
+      data$signif[data$drug %in% drug] <- model_anova$signif[grepl(drug,
+        rownames(model_anova))]
+      data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug,
+        rownames(model_anova))]
+      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug,
+        rownames(model_anova)), 2]
+      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
+        rownames(model_anova))]
+      data$pval[data$drug %in% drug] <- model_anova$p.value[grepl(drug,
+        rownames(model_anova))]
     }
   }
   return(data)
