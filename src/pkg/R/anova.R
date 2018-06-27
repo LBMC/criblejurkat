@@ -128,6 +128,8 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch") {
                      data = data,
                      psi = MASS::psi.huber,
                      k = stats::quantile(data[[variable_name]], 0.90))
+
+  utils::save(model, file = paste0(outdir, "anova_rlm.Rdata"))
   outdir <- mk_outdir(data, "test")
   grDevices::pdf(
     paste0(
