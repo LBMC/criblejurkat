@@ -9,7 +9,7 @@
 #' \dontrun{
 #' plot_plates(fsc_data)
 #' }
-#' @importFrom ggplot2 ggplot aes geom_violin geom_point facet_wrap labs theme_bw
+#' @importFrom ggplot2 ggplot aes geom_violin geom_point facet_wrap labs theme_bw scale_fill_gradient
 #' @export plot_well
 plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
   s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
@@ -18,12 +18,19 @@ plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
     mean_x <- by(s_data$x, s_data$code.well, mean)
     s_data$mean_x <- mean_x[s_data$code.well]
     p <- ggplot2::ggplot()
-    if ("signif" %in% colnames(s_data)) {
+    if ("pval" %in% colnames(s_data)) {
+      s_data$pval <- as.vector(s_data$pval)
+      s_data$pval[s_data$pval == 0] <- 0.1e-12
       p <- p + ggplot2::geom_violin(data = s_data,
-          ggplot2::aes(x = code.well, y = x, fill = signif))
+          ggplot2::aes(x = code.well, y = x, fill = log10(pval))) +
+          ggplot2::scale_fill_gradient(low = "#E62916",
+                                       high = "#56B1F7",
+                                       space = "Lab",
+                                       na.value = "grey50",
+                                       guide = "colourbar")
     } else {
       p <- p + ggplot2::geom_violin(data = s_data,
-          ggplot2::aes(x = code.well, y = x, fill = signif))
+          ggplot2::aes(x = code.well, y = x, fill = drug_status))
     }
     p <- p + ggplot2::geom_point(data = s_data,
               ggplot2::aes(x = code.well, y = mean_x)) +
