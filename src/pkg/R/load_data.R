@@ -159,8 +159,62 @@ mk_outdir <- function(fcs_data, folder) {
     project_name(fcs_data),
     "/", folder, "/"
   )
-  dir.create(outdir, recursive = TRUE)
+  if (!dir.exists(outdir)) {
+    dir.create(outdir, recursive = TRUE)
+  }
   return(outdir)
 }
+
+#' convert data from anova_rlm to well position in chemical data base
+#'
+#' @param data data.frame outputed by anova_rlm()
+#' @param col (default: c(1, 12))
+#' @return data.frame with the None well in col
+#' @examples
+#' \dontrun{
+#' mk_outdir(fcs_data, "gating")
+#' }
+#' @export project_name
+move_none_well <- function(data, col = c(1, 12)) {
+  for (plate_line in levels(as.factor(data$line))) {
+    line_data <- data[data$line %in% plate_line, ]
+    line_data$column <- as.factor(line_data$column)
+    old_col <- line_data$drug_status %in% "None"
+    old_none_well <- as.numeric(
+      levels(as.factor(as.vector(line_data$column[old_col])))
+    )
+    col_to_move <- col[!(col %in% old_none_well)]
+    old_none_well <- old_none_well[!(old_none_well %in% col)]
+    old_drug_well <- as.numeric(line_data$column[!old_col])
+    new_drug_well <- old_drug_well
+    if (length(old_none_well) > 0){
+      for (i in 1:length(col_to_move)) {
+        to_increase <- old_drug_well < old_none_well[i] &
+          old_drug_well >= col_to_move[i]
+        to_decrease <- old_drug_well > old_none_well[i] &
+          old_drug_well <= col_to_move[i]
+        new_drug_well[to_increase] <- new_drug_well[to_increase] + 1
+        new_drug_well[to_decrease] <- new_drug_well[to_decrease] - 1
+
+        line_data$column[as.numeric(line_data$column) %in% old_none_well[i]] <- col_to_move[i]
+
+        line_data$column <- as.numeric(line_data$column)
+        line_data$column[!old_col] <- new_drug_well
+        line_data$column <- as.numeric(line_data$column)
+      }
+
+      line_data$column <- as.character(line_data$column)
+      line_data$column[as.numeric(line_data$column) < 10] <- paste0("0",
+        line_data$column[as.numeric(line_data$column) < 10]
+      )
+      line_data$column <- as.factor(line_data$column)
+      line_data$code.well <- paste0(line_data$line, line_data$column)
+      data[data$line %in% plate_line, ] <- line_data
+    }
+  }
+  return(data)
+}
+
+
 
 
