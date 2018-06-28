@@ -168,11 +168,11 @@ mk_outdir <- function(fcs_data, folder) {
 #' convert data from anova_rlm to well position in chemical data base
 #'
 #' @param data data.frame outputed by anova_rlm()
-#' @param col (default: c(1, 12))
+#' @param col (default: c("01", "12")) new position of the "None" columns
 #' @return data.frame with the None well in col
 #' @examples
 #' \dontrun{
-#' mk_outdir(fcs_data, "gating")
+#' data_chem <- move_none_well(data)
 #' }
 #' @export project_name
 move_none_well <- function(data, col = c("01", "12")) {

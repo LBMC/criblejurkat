@@ -125,14 +125,17 @@ batch_effect <- function(data) {
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats as.formula quantile
 #' @export anova_rlm
-anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE) {
+anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
+                      outdir) {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
   model <- MASS::rlm(stats::as.formula(formula),
                      data = data,
                      psi = MASS::psi.huber,
                      k = stats::quantile(data[[variable_name]], 0.90))
   model_anova <- compute_pval(model, lower = lower)
-  outdir <- mk_outdir(data, "test")
+  if (!isset(outdir)) {
+    outdir <- mk_outdir(data, "test")
+  }
   save(model, file = paste0(outdir, "anova_rlm.Rdata"))
   data <- export_rlm_results(data, model_anova)
   export_drug_table(data, model_anova, outdir)
