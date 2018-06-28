@@ -184,9 +184,7 @@ move_none_well <- function(data, col = c("01", "12")) {
   for (i in 1:min(length(col), length(column_well_none))) {
     new_column_well <- move_column(new_column_well, column_well_none[i], col[i])
   }
-  print(summary(as.factor(data$column)))
   levels(data$column) <- new_column_well
-  print(summary(as.factor(data$column)))
   data <- data[order(as.numeric(as.factor(data$line)),
                      as.numeric(data$column)), ]
   data$code.well <- paste0(data$line, data$column)

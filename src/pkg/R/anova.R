@@ -133,7 +133,7 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
                      psi = MASS::psi.huber,
                      k = stats::quantile(data[[variable_name]], 0.90))
   model_anova <- compute_pval(model, lower = lower)
-  if (!isset(outdir)) {
+  if (missing(outdir)) {
     outdir <- mk_outdir(data, "test")
   }
   save(model, file = paste0(outdir, "anova_rlm.Rdata"))

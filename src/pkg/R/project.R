@@ -54,16 +54,19 @@ analysis <- function(data_path = "data/") {
   }
   sets_list <- list()
   for (folder in set_folders) {
+    message(paste0("gating for ", folder))
     sets_list[[folder]] <- set_analysis(paste0(data_path, "/", folder),
                                         meta = T)
     sets_list[[folder]]$set <- folder
   }
-  data <- do.call(sets_list, rbind)
+  data <- do.call(rbind, sets_list)
   data <- as.data.frame(data)
+  data$set <- as.factor(data$set)
   print(summary(data))
   anova_rlm(data, formula = "ratio ~ drug + batch + set",
-            outdir = gsub("data/(.+)/", well, perl=T)[1])
+            outdir = gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
   for (folder in set_folders) {
+    message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])
     plot_line(data[data$set %in% folder, ])
     plot_column(data[data$set %in% folder, ])

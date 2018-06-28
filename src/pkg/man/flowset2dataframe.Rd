@@ -4,7 +4,7 @@
 \alias{flowset2dataframe}
 \title{convert annotated flowSet to data.frame}
 \usage{
-flowset2dataframe(fcs_data, channels = c("Y1.A", "B1.A"))
+flowset2dataframe(fcs_data, channels = c("Y1.A", "B1.A"), norm = TRUE)
 }
 \arguments{
 \item{fcs_data}{an object of class flowSet}
