@@ -62,7 +62,6 @@ analysis <- function(data_path = "data/") {
   data <- do.call(rbind, sets_list)
   data <- as.data.frame(data)
   data$set <- as.factor(data$set)
-  print(summary(data))
   anova_rlm(data, formula = "ratio ~ drug + batch + set",
             outdir = gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
   for (folder in set_folders) {
