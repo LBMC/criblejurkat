@@ -175,46 +175,49 @@ mk_outdir <- function(fcs_data, folder) {
 #' mk_outdir(fcs_data, "gating")
 #' }
 #' @export project_name
-move_none_well <- function(data, col = c(1, 12)) {
-  for (plate_line in levels(as.factor(data$line))) {
-    line_data <- data[data$line %in% plate_line, ]
-    line_data$column <- as.factor(line_data$column)
-    old_col <- line_data$drug_status %in% "None"
-    old_none_well <- as.numeric(
-      levels(as.factor(as.vector(line_data$column[old_col])))
-    )
-    col_to_move <- col[!(col %in% old_none_well)]
-    old_none_well <- old_none_well[!(old_none_well %in% col)]
-    old_drug_well <- as.numeric(line_data$column[!old_col])
-    new_drug_well <- old_drug_well
-    if (length(old_none_well) > 0){
-      for (i in 1:length(col_to_move)) {
-        to_increase <- old_drug_well < old_none_well[i] &
-          old_drug_well >= col_to_move[i]
-        to_decrease <- old_drug_well > old_none_well[i] &
-          old_drug_well <= col_to_move[i]
-        new_drug_well[to_increase] <- new_drug_well[to_increase] + 1
-        new_drug_well[to_decrease] <- new_drug_well[to_decrease] - 1
-
-        line_data$column[as.numeric(line_data$column) %in% old_none_well[i]] <- col_to_move[i]
-
-        line_data$column <- as.numeric(line_data$column)
-        line_data$column[!old_col] <- new_drug_well
-        line_data$column <- as.numeric(line_data$column)
-      }
-
-      line_data$column <- as.character(line_data$column)
-      line_data$column[as.numeric(line_data$column) < 10] <- paste0("0",
-        line_data$column[as.numeric(line_data$column) < 10]
-      )
-      line_data$column <- as.factor(line_data$column)
-      line_data$code.well <- paste0(line_data$line, line_data$column)
-      data[data$line %in% plate_line, ] <- line_data
-    }
+move_none_well <- function(data, col = c("01", "12")) {
+  data$column <- as.factor(data$column)
+  new_column_well <- levels(data$column)
+  column_well_none <- levels( as.factor( as.vector(
+    data$column[data$drug_status %in% "None"]
+  )))
+  for (i in 1:min(length(col), length(column_well_none))) {
+    new_column_well <- move_column(new_column_well, column_well_none[i], col[i])
   }
+  print(summary(as.factor(data$column)))
+  levels(data$column) <- new_column_well
+  print(summary(as.factor(data$column)))
+  data <- data[order(as.numeric(as.factor(data$line)),
+                     as.numeric(data$column)), ]
+  data$code.well <- paste0(data$line, data$column)
   return(data)
 }
 
+column_name <- function(x) {
+  if (is.numeric(x)) {
+    x <- as.character(x)
+    x[as.numeric(x) < 10] <- paste0("0", x[as.numeric(x) < 10])
+  } else {
+    x <- as.numeric(x)
+  }
+  return(x)
+}
 
+move_column <- function(x, old_col, new_col) {
+    x <- as.numeric(x)
+    new_col <- as.numeric(new_col)
+    old_col <- as.numeric(old_col)
+    old_col_pos <- which(x == old_col)
+    if (old_col < new_col) {
+      to_decrease <- old_col < x & x <= new_col
+      x[to_decrease] <- x[to_decrease] - 1
+    }
+    if (old_col > new_col) {
+      to_decrease <- old_col > x & x >= new_col
+      x[to_increase] <- x[to_increase] + 1
+    }
+    x[old_col_pos] <- new_col
+    return(column_name(x))
+}
 
 
