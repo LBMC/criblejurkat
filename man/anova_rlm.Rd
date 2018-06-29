@@ -4,12 +4,14 @@
 \alias{anova_rlm}
 \title{build rm model between drugs accounting for batch effect}
 \usage{
-anova_rlm(data, formula = "ratio ~ drug + batch")
+anova_rlm(data, formula = "ratio ~ drug + batch", lower = TRUE, outdir)
 }
 \arguments{
 \item{data}{a data.frame}
 
 \item{formula}{(default: "ratio ~ drug + batch") the formula of the model}
+
+\item{lower}{(default: TRUE) tests if "y" (the ratio) is lower than in controls}
 }
 \value{
 a data.frame
