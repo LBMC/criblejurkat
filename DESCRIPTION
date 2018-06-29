@@ -1,4 +1,4 @@
-Package: criblejurkat
+Package: CribleJurkat
 Title: Analysis of FACS data for the Jurkat crible project
 Type: Package
 Version: 0.3
@@ -14,7 +14,6 @@ Depends:
   ggcyto (>= 1.8),
   MASS (>= 7.3),
   flowWorkspace (>= 3.28),
-  flowStats (>= 3.38),
   scales (>= 0.5),
   methods
 License: file LICENSE
