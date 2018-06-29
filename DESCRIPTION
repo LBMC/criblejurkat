@@ -1,4 +1,4 @@
-Package: CribleJurkat
+Package: criblejurkat
 Title: Analysis of FACS data for the Jurkat crible project
 Type: Package
 Version: 0.3
