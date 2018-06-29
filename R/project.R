@@ -63,7 +63,8 @@ analysis <- function(data_path = "data/") {
   data <- as.data.frame(data)
   data$set <- as.factor(data$set)
   anova_rlm(data, formula = "ratio ~ drug + batch + set",
-            outdir = gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
+            outdir = paste0(gsub("data/(.+)/", "\\1", data_path, perl=T)[1],
+                            "test"))
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])
