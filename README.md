@@ -12,7 +12,7 @@ On ubunutu, you needd `R` and other packages :
 
 ```sh
 apt-get update
-apt-get install r-base libssl-dev libcurl4-openssl-dev libssh2-1-dev ca-certificates
+apt-get install r-base libssl-dev libcurl4-openssl-dev libssh2-1-dev ca-certificates libxml2-dev
 ```
 
 In R, you need to install the packages `devtools`:
@@ -26,7 +26,7 @@ install.packages("devtools")
 You can install the package directly from github with the following command:
 
 ```R
-devtools::install_github("LBMC/criblejurkat.git")
+devtools::install_github("LBMC/criblejurkat")
 ```
 
 ## Authors
