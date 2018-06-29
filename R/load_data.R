@@ -139,7 +139,6 @@ project_name <- function(fcs_data) {
   } else {
     well <- rownames(flowCore::pData(fcs_data))
   }
-
   gsub("data/(.+)/.*fcs", "\\1", well, perl=T)[1]
 }
 

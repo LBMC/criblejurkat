@@ -38,7 +38,7 @@ set_analysis <- function(data_path = "data/", meta = F) {
 #' \dontrun{
 #' analysis("data/set_test")
 #' }
-#' @export set_analysis
+#' @export analysis
 analysis <- function(data_path = "data/") {
   if (base::file.info(data_path)$isdir) {
     set_folders <- list.dirs(data_path, full.names = F)[-1]
