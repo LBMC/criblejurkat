@@ -28,3 +28,14 @@ You can install the package directly from github with the following command:
 ```R
 devtools::install_github("LBMC/criblejurkat.git")
 ```
+
+## Authors
+
+* **Laurent Modolo** - *Initial work*
+
+See also the list of [contributors](https://gitlab.biologie.ens-lyon.fr/pipelines/nextflow/graphs/master) who participated in this project.
+
+## License
+
+This project is licensed under the CeCiLL License- see the [LICENSE](LICENSE) file for details
+
