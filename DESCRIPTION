@@ -13,7 +13,7 @@ Depends:
   openCyto (>= 1.12),
   ggcyto (>= 1.2),
   MASS (>= 7.3),
-  flowWorkspace (>= 3.28),
+  flowWorkspace (>= 3.20),
   scales (>= 0.5),
   methods
 License: file LICENSE
