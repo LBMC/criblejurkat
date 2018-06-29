@@ -146,7 +146,7 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
 compute_pval <- function(model, lower = TRUE) {
   summodel <- summary(model)
   model_anova <- data.frame(summodel$coefficients)
-  model_anova$p.value =  stats::pt(
+  model_anova$pval =  stats::pt(
     model_anova$t.value,
     summodel$df[2],
     lower.tail=TRUE
