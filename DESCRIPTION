@@ -9,7 +9,7 @@ Depends:
   R (>= 3.2.2),
   ggplot2 (>= 2.2.1),
   flowCore (>= 1.4),
-  flowClust (>= 3.16),
+  flowClust (>= 3.12),
   openCyto (>= 1.18),
   ggcyto (>= 1.8),
   MASS (>= 7.3),
