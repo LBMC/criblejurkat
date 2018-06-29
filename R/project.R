@@ -52,6 +52,8 @@ analysis <- function(data_path = "data/") {
       "error: ", data_path, " doesn't folders"
     ))
   }
+  outdir_rlm <- paste0("results/",
+                       gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
   sets_list <- list()
   for (folder in set_folders) {
     message(paste0("gating for ", folder))
@@ -63,8 +65,7 @@ analysis <- function(data_path = "data/") {
   data <- as.data.frame(data)
   data$set <- as.factor(data$set)
   anova_rlm(data, formula = "ratio ~ drug + batch + set",
-            outdir = paste0(gsub("data/(.+)/", "\\1", data_path, perl=T)[1],
-                            "test"))
+            outdir = outdir_rlm)
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])
