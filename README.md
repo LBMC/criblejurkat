@@ -29,6 +29,22 @@ You can install the package directly from github with the following command:
 devtools::install_github("LBMC/criblejurkat")
 ```
 
+### Examples
+
+To analyse a single fcs folder (in the `set` folder):
+
+```R
+criblejurkat::set_analysis("data/set/")
+```
+
+To analyse many fcs folders (in the `sets` folder)
+```R
+criblejurkat::analysis("data/sets/")
+```
+
+The analysis results will be copied in a `results/set` or `results/sets/setx` folder
+
+
 ## Authors
 
 * **Laurent Modolo** - *Initial work*
