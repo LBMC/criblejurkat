@@ -11,7 +11,7 @@ Imports:
   ggplot2 (>= 2.2.1),
   flowCore (>= 1.4),
   flowClust (>= 3.12),
-  openCyto (>= 1.18),
+  openCyto (>= 1.16),
   ggcyto (>= 1.6.2),
   MASS (>= 7.3),
   flowWorkspace (>= 3.20),
