@@ -12,6 +12,8 @@ anova_rlm(data, formula = "ratio ~ drug + batch", lower = TRUE, outdir)
 \item{formula}{(default: "ratio ~ drug + batch") the formula of the model}
 
 \item{lower}{(default: TRUE) tests if "y" (the ratio) is lower than in controls}
+
+\item{outdir}{set the outdir directory to a path (default extracted from fcs)}
 }
 \value{
 a data.frame

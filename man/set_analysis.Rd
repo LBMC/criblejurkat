@@ -8,6 +8,8 @@ set_analysis(data_path = "data/", meta = F)
 }
 \arguments{
 \item{data_path}{path to the data set}
+
+\item{meta}{(default: FALSE) is the set_analysis part of a sets analysis}
 }
 \value{
 TRUE if everythings ran correclty
