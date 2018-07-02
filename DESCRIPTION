@@ -11,7 +11,7 @@ Depends:
   flowCore (>= 1.42),
   flowClust (>= 3.18),
   openCyto (>= 1.18),
-  ggcyto (>= 1.8),
+  ggcyto (>= 1.4),
   MASS (>= 7.3),
   flowWorkspace (>= 3.28),
   scales (>= 0.5),
