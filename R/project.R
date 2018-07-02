@@ -1,6 +1,7 @@
 #' perform all the analysis for a given data set
 #'
 #' @param data_path path to the data set
+#' @param meta (default: FALSE) is the set_analysis part of a sets analysis
 #' @return TRUE if everythings ran correclty
 #' @examples
 #' \dontrun{
