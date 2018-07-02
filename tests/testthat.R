@@ -1,4 +1,4 @@
 library(testthat)
-library(CribleJurkat)
+library(criblejurkat)
 
-test_check("CribleJurkat")
+test_check("criblejurkat")

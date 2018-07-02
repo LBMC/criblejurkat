@@ -1,4 +1,4 @@
-library(CribleJurkat)
+library(criblejurkat)
 context("Run CribleJurkat analysis")
 
 test_that("loading data", {
