@@ -74,7 +74,7 @@ get_files <- function(path, regexp) {
 #' load_data("data/examples/")
 #' }
 #' @importFrom flowCore read.flowSet
-#' @importFrom BioBase AnnotatedDataFrame
+#' @importFrom Biobase AnnotatedDataFrame
 #' @importFrom utils read.csv
 #' @importFrom methods as
 #' @export load_data
@@ -139,7 +139,6 @@ project_name <- function(fcs_data) {
   } else {
     well <- rownames(flowCore::pData(fcs_data))
   }
-
   gsub("data/(.+)/.*fcs", "\\1", well, perl=T)[1]
 }
 
@@ -211,7 +210,7 @@ move_column <- function(x, old_col, new_col) {
       x[to_decrease] <- x[to_decrease] - 1
     }
     if (old_col > new_col) {
-      to_decrease <- old_col > x & x >= new_col
+      to_increase <- old_col > x & x >= new_col
       x[to_increase] <- x[to_increase] + 1
     }
     x[old_col_pos] <- new_col

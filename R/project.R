@@ -1,6 +1,7 @@
 #' perform all the analysis for a given data set
 #'
 #' @param data_path path to the data set
+#' @param meta (default: FALSE) is the set_analysis part of a sets analysis
 #' @return TRUE if everythings ran correclty
 #' @examples
 #' \dontrun{
@@ -38,7 +39,7 @@ set_analysis <- function(data_path = "data/", meta = F) {
 #' \dontrun{
 #' analysis("data/set_test")
 #' }
-#' @export set_analysis
+#' @export analysis
 analysis <- function(data_path = "data/") {
   if (base::file.info(data_path)$isdir) {
     set_folders <- list.dirs(data_path, full.names = F)[-1]
@@ -52,6 +53,8 @@ analysis <- function(data_path = "data/") {
       "error: ", data_path, " doesn't folders"
     ))
   }
+  outdir_rlm <- paste0("results/",
+                       gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
   sets_list <- list()
   for (folder in set_folders) {
     message(paste0("gating for ", folder))
@@ -63,7 +66,7 @@ analysis <- function(data_path = "data/") {
   data <- as.data.frame(data)
   data$set <- as.factor(data$set)
   anova_rlm(data, formula = "ratio ~ drug + batch + set",
-            outdir = gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
+            outdir = outdir_rlm)
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])

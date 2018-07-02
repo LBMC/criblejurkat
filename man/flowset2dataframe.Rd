@@ -11,6 +11,8 @@ flowset2dataframe(fcs_data, channels = c("Y1.A", "B1.A"), norm = TRUE)
 
 \item{channels}{(default = c("Y1.A", "B1.A)) the column ratio will be the
 ratio of Y1.A / B1.A}
+
+\item{norm}{(default: TRUE) normalization step (power_trans) for the ratio}
 }
 \value{
 a data.frame

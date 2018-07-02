@@ -3,6 +3,7 @@
 #' @param fcs_data an object of class flowSet
 #' @param channels (default = c("Y1.A", "B1.A)) the column ratio will be the
 #' ratio of Y1.A / B1.A
+#' @param norm (default: TRUE) normalization step (power_trans) for the ratio
 #' @return a data.frame
 #' @examples
 #' \dontrun{
@@ -116,6 +117,7 @@ batch_effect <- function(data) {
 #' @param data a data.frame
 #' @param formula (default: "ratio ~ drug + batch") the formula of the model
 #' @param lower (default: TRUE) tests if "y" (the ratio) is lower than in controls
+#' @param outdir set the outdir directory to a path (default extracted from fcs)
 #' @return a data.frame
 #' @examples
 #' \dontrun{
@@ -146,7 +148,7 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
 compute_pval <- function(model, lower = TRUE) {
   summodel <- summary(model)
   model_anova <- data.frame(summodel$coefficients)
-  model_anova$p.value =  stats::pt(
+  model_anova$pval =  stats::pt(
     model_anova$t.value,
     summodel$df[2],
     lower.tail=TRUE
