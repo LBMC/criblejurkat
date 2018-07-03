@@ -55,6 +55,9 @@ analysis <- function(data_path = "data/") {
   }
   outdir_rlm <- paste0("results/",
                        gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
+  if (!dir.exists(outdir_rlm)) {
+    dir.create(outdir_rlm, recursive = TRUE)
+  }
   sets_list <- list()
   for (folder in set_folders) {
     message(paste0("gating for ", folder))
