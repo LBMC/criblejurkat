@@ -170,7 +170,7 @@ export_rlm_results <- function(data, model_anova) {
         rownames(model_anova)), 2]
       data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
         rownames(model_anova))]
-      data$pval[data$drug %in% drug] <- model_anova$p.value[grepl(drug,
+      data$pval[data$drug %in% drug] <- model_anova$pval[grepl(drug,
         rownames(model_anova))]
     }
   }
