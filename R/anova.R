@@ -188,6 +188,6 @@ export_drug_table <- function(data, model_anova, outdir,
     drug_table[[channel]] <- drug_mean[drug_test]
   }
   utils::write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
-  drug_table[order(drug_table$pval), ]
+  drug_table <- drug_table[order(drug_table$pval), ]
   utils::write.csv(drug_table, file = paste0(outdir, "anova_rlm_drug.csv"))
 }
