@@ -14,7 +14,7 @@ before_script:
 cache:
   key:${CI_COMMIT_REF_SLUG}
   path:
-   - /usr/local/lib/R/site-library/
+  - /usr/local/lib/R/site-library/
 
 stages:
 - build
