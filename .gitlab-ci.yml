@@ -12,9 +12,9 @@ before_script:
 - r -e 'devtools::install_dev_deps()'
 
 cache:
-  key:${CI_COMMIT_REF_SLUG}
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
-  - /usr/local/lib/R/site-library/
+    - /usr/local/lib/R/site-library/
 
 stages:
 - build
