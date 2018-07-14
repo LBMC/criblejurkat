@@ -11,12 +11,21 @@ before_script:
   - install2.r devtools
   - r -e 'devtools::install_dev_deps()'
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  path:
+    - /usr/local/lib/R/site-library/
+
+stages:
+  - build
+  - test
+
 build:
+  stage: build
   script:
     - R CMD build .
 test:
-  dependencies:
-    - build
+  stage: test
   script:
     - R -e 'source("https://bioconductor.org/biocLite.R"); biocLite(c("ggplot2", "flowCore", "flowClust", "openCyto", "ggcyto", "flowWorkspace", "scales", "Biobase"))'
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
