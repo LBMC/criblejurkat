@@ -3,22 +3,22 @@ variables:
   APT_PKGS: "libcurl4-openssl-dev libssh2-1-dev libssl-dev libxml2-dev zlib1g-dev git"
 
 before_script:
-  - apt-get update
-  - apt-get install -y --no-install-recommends ${APT_PKGS}
-  - apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
-  - export PATH="/usr/local/lib/R/site-library/littler/examples/:${PATH}"
-  - echo "options(Ncpus = $(nproc --all))" >> /usr/local/lib/R/etc/Rprofile.site
-  - install2.r devtools
-  - r -e 'devtools::install_dev_deps()'
+- apt-get update
+- apt-get install -y --no-install-recommends ${APT_PKGS}
+- apt-get install -y --no-install-recommends qpdf pandoc pandoc-citeproc
+- export PATH="/usr/local/lib/R/site-library/littler/examples/:${PATH}"
+- echo "options(Ncpus = $(nproc --all))" >> /usr/local/lib/R/etc/Rprofile.site
+- install2.r devtools
+- r -e 'devtools::install_dev_deps()'
 
 cache:
-  key: ${CI_COMMIT_REF_SLUG}
+  key:${CI_COMMIT_REF_SLUG}
   path:
-    - /usr/local/lib/R/site-library/
+   - /usr/local/lib/R/site-library/
 
 stages:
-  - build
-  - test
+- build
+- test
 
 build:
   stage: build
