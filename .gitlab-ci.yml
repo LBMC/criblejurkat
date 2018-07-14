@@ -24,7 +24,7 @@ build:
 test:
   stage: test
   script:
-    - R -e 'source("https://bioconductor.org/biocLite.R"); biocLite(c("ggplot2", "flowCore", "flowClust", "openCyto", "ggcyto", "flowWorkspace", "scales", "Biobase"))'
+    - R -e 'source("https://bioconductor.org/biocLite.R"); biocLite(c("BiocInstaller", "ggplot2", "flowCore", "flowClust", "openCyto", "ggcyto", "flowWorkspace", "scales", "Biobase"))'
     - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
     - R CMD check "${PKG_FILE_NAME}"
     - R -e 'devtools::test()'
