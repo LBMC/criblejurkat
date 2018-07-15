@@ -5,6 +5,7 @@ variables:
 before_script:
 - apt-get update
 - apt-get install -y --no-install-recommends ${APT_PKGS}
+- R -e 'source("https://bioconductor.org/biocLite.R"); biocLite(c("devtools", "ggplot2", "flowCore", "flowClust", "openCyto", "ggcyto", "flowWorkspace", "scales", "Biobase"))'
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -13,15 +14,20 @@ cache:
 
 stages:
 - build
+- check
 - test
 
 build:
   stage: build
   script:
     - R CMD build .
+
+check:
+  stage: check
+  script:
+    - R -e 'devtools::check()'
+
 test:
   stage: test
   script:
-    - R -e 'source("https://bioconductor.org/biocLite.R"); biocLite(c("devtools", "ggplot2", "flowCore", "flowClust", "openCyto", "ggcyto", "flowWorkspace", "scales", "Biobase"))'
-    - R -e 'devtools::check()'
     - R -e 'devtools::test()'
