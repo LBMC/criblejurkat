@@ -1,16 +1,4 @@
-image: r-base:3.5.1
-variables:
-  APT_PKGS: "libcurl4-openssl-dev libssh2-1-dev libssl-dev libxml2-dev zlib1g-dev git"
-
-before_script:
-- apt-get update
-- apt-get install -y --no-install-recommends ${APT_PKGS}
-- R -e 'source("https://bioconductor.org/biocLite.R"); biocLite(c("devtools", "ggplot2", "flowCore", "flowClust", "openCyto", "ggcyto", "flowWorkspace", "scales", "Biobase"))'
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - /usr/local/lib/R/site-library/
+image: r_dev:3.5.1
 
 stages:
 - build
