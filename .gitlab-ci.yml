@@ -1,4 +1,4 @@
-image: r_dev:3.5.1
+image: lmodolo/r_dev
 
 stages:
 - build
