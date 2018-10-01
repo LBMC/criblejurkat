@@ -32,7 +32,7 @@ flowset2dataframe <- function(fcs_data, channels = c("Y1.A", "B1.A"),
     infos = flowCore::pData(flowCore::phenoData(fcs_data))
   )
   data <- data.frame(do.call(rbind, data))
-  names(data)[1:2] <- c("well", "step")
+  names(data)[1:2] <- c("file_path", "step")
   data$name <- as.factor(data$name)
   data$drug <- as.vector(data$drug)
   data <- parse_drug(data)

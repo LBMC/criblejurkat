@@ -11,7 +11,6 @@
 set_analysis <- function(data_path = "data/", meta = F) {
   fcs_raw <- load_data(data_path)
   data_raw <- flowset2dataframe(fcs_raw, norm = F)
-  names( data_raw )[1] <- "file_path"
   plot_well(data_raw, sufix = "_raw")
   plot_line(data_raw, sufix = "_raw")
   plot_column(data_raw, sufix = "_raw")
@@ -21,7 +20,6 @@ set_analysis <- function(data_path = "data/", meta = F) {
   fcs_data <- rm_nonfluo(fcs_nonSinglets)
 
   data <- flowset2dataframe(fcs_data, norm = T)
-  names( data )[1] <- "file_path"
   if (meta) {
     return(data)
   }

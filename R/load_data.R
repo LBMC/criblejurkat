@@ -135,7 +135,7 @@ load_data <- function(data_path) {
 #' @export project_name
 project_name <- function(fcs_data) {
   if (is.data.frame(fcs_data)) {
-    well <- fcs_data$well
+    well <- fcs_data$file_path
   } else {
     well <- rownames(flowCore::pData(fcs_data))
   }
