@@ -20,7 +20,7 @@ plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
     p <- ggplot2::ggplot()
     if ("pval" %in% colnames(s_data)) {
       s_data$pval <- as.vector(s_data$pval)
-      s_data$pval[s_data$pval == 0] <- 0.1e-12
+      s_data$pval[s_data$pval == 0] <- 1e-14
       p <- p + ggplot2::geom_violin(data = s_data,
           ggplot2::aes(x = code.well, y = x, fill = log10(pval))) +
           ggplot2::scale_fill_gradient(low = "#E62916",
