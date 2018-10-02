@@ -57,6 +57,10 @@ power_trans <- function(data, formula = "ratio ~ batch",
   power_tr <- scales::boxcox_trans(lambda)
   power_tr <- power_tr$transform
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
+  if (min(data[[variable_name]]) < 0) {
+    data[[variable_name]] <- data[[variable_name]] +
+      abs(min(data[[variable_name]]))
+  }
   data[[paste0(variable_name, "_norm")]] <-power_tr(data[[variable_name]])
   return(data)
 }
