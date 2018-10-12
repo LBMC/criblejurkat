@@ -31,7 +31,7 @@ rm_debris <- function(fcs_data) {
       res1 <- flowClust::flowClust(
         fcs_data[[i]],
         varNames = c("FSC.A", "SSC.A"),
-        K = 2,
+        K = 1,
         B = 1000,
         level = 0.90,
         z.cutoff = 0
@@ -135,8 +135,10 @@ rm_nonfluo <- function(fcs_data) {
                              initial = 1, style = 3)
   for (i in 1:length(fcs_data)) {
     suppressMessages(
-      res1 <- flowClust::flowClust(fcs_data[[i]], varNames=c("Y1.A", "B1.A"),
-                                   K=1, B=100)
+      res1 <- flowClust::flowClust(fcs_data[[i]],
+                                   varNames = c("Y1.A", "B1.A"),
+                                   K = 1,
+                                   B = 100)
     )
     utils::capture.output(
       flowClust::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
@@ -144,6 +146,7 @@ rm_nonfluo <- function(fcs_data) {
     fcs_fluo[[i]] <- flowClust::split(
       fcs_data[[i]],
       res1,
+      rm.outliers = TRUE,
       population = list(
         fluo = 1
       )

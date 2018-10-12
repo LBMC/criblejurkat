@@ -39,7 +39,7 @@ criblejurkat::set_analysis("data/set/")
 
 To analyse many fcs folders (in the `sets` folder)
 ```R
-criblejurkat::analysis("data/sets/")
+criblejurkat::analysis("data/")
 ```
 
 The analysis results will be copied in a `results/set` or `results/sets/setx` folder
