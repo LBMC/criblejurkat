@@ -1,6 +1,7 @@
 #' remove debris from data
 #'
 #' @param fcs_data an object of class flowSet
+#' @param cluster_number (default: 2) number of cluster to look for
 #' @return an object of class flowSet
 #' @examples
 #' \dontrun{
@@ -26,33 +27,53 @@ rm_debris <- function(fcs_data) {
   pb <- utils::txtProgressBar(min = 0, max = length(fcs_data),
                              initial = 1, style = 3)
   for (i in 1:length(fcs_data)) {
-    suppressMessages(
-      res1 <- flowClust::flowClust(
-        fcs_data[[i]],
-        varNames=c("FSC.A", "SSC.A"),
-        K=2,
-        B=100
+    j <- 2
+    nonDebris <- 1
+    Debris <- 2
+    cluster_prop <- c(0, 1)
+    cluster_location <- NULL
+    cluster_pop <- NULL
+    while (j > 0 & cluster_prop[nonDebris] <= cluster_prop[Debris]) {
+      suppressMessages(
+        res1 <- flowClust::flowClust(
+          fcs_data[[i]],
+          varNames = c("FSC.A", "SSC.A"),
+          K = j,
+          B = 1000,
+          level = 0.90,
+          z.cutoff = 0
+        )
       )
-    )
+      cluster_location <- flowClust::getEstimates(res1)$locations
+      cluster_prop <- flowClust::getEstimates(res1)$proportions
+
+      nonDebris <- which(
+        cluster_location[,1] == max(cluster_location[,1])
+      )
+      cluster_pop <- list(
+        nonDebris = nonDebris
+      )
+      if (j > 1) {
+        Debris <- which(
+          cluster_location[,1] == min(cluster_location[,1])
+        )
+        cluster_pop[[Debris]] <- Debris
+      }
+      j <- j - 1
+    }
+
     utils::capture.output(
-      flowClust::plot(res1, data=fcs_data[[i]], level=0.95, z.cutoff=0)
-    )
-    cluster_location <- flowClust::getEstimates(res1)$locations
-    nonDebris <- which(
-      cluster_location[,1] == max(cluster_location[,1])
-    )
-    Debris <- which(
-      cluster_location[,1] == min(cluster_location[,1])
+      flowClust::plot(res1, data = fcs_data[[i]],
+                      level = 0.90, z.cutoff = 0
+      )
     )
     graphics::abline(v = cluster_location[nonDebris,1],
            h = cluster_location[nonDebris,2])
     fcs_nonDebris[[i]] <- flowClust::split(
       fcs_data[[i]],
       res1,
-      population = list(
-        nonDebris = nonDebris,
-        Debris = Debris
-      )
+      population = cluster_pop,
+      rm.outliers = TRUE,
     )$nonDebris
     utils::setTxtProgressBar(pb, i)
   }
