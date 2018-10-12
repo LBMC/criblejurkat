@@ -14,12 +14,14 @@ set_analysis <- function(data_path = "data/", meta = F) {
   plot_well(data_raw, sufix = "_raw")
   plot_line(data_raw, sufix = "_raw")
   plot_column(data_raw, sufix = "_raw")
+  rm(data_raw)
 
   fcs_nonDebris <- rm_debris(fcs_raw)
   fcs_nonSinglets <- rm_nonsinglets(fcs_nonDebris)
   fcs_data <- rm_nonfluo(fcs_nonSinglets)
 
   data <- flowset2dataframe(fcs_data, norm = T)
+  rm(fcs_data)
   if (meta) {
     return(data)
   }
