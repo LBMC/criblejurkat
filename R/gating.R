@@ -27,40 +27,25 @@ rm_debris <- function(fcs_data) {
   pb <- utils::txtProgressBar(min = 0, max = length(fcs_data),
                              initial = 1, style = 3)
   for (i in 1:length(fcs_data)) {
-    j <- 2
-    nonDebris <- 1
-    Debris <- 2
-    cluster_prop <- c(0, 1)
-    cluster_location <- NULL
-    cluster_pop <- NULL
-    while (j > 0 & cluster_prop[nonDebris] <= cluster_prop[Debris]) {
-      suppressMessages(
-        res1 <- flowClust::flowClust(
-          fcs_data[[i]],
-          varNames = c("FSC.A", "SSC.A"),
-          K = j,
-          B = 1000,
-          level = 0.90,
-          z.cutoff = 0
-        )
+    suppressMessages(
+      res1 <- flowClust::flowClust(
+        fcs_data[[i]],
+        varNames = c("FSC.A", "SSC.A"),
+        K = 2,
+        B = 1000,
+        level = 0.90,
+        z.cutoff = 0
       )
-      cluster_location <- flowClust::getEstimates(res1)$locations
-      cluster_prop <- flowClust::getEstimates(res1)$proportions
+    )
+    cluster_location <- flowClust::getEstimates(res1)$locations
+    cluster_prop <- flowClust::getEstimates(res1)$proportions
 
-      nonDebris <- which(
-        cluster_location[,1] == max(cluster_location[,1])
-      )
-      cluster_pop <- list(
-        nonDebris = nonDebris
-      )
-      if (j > 1) {
-        Debris <- which(
-          cluster_location[,1] == min(cluster_location[,1])
-        )
-        cluster_pop[[Debris]] <- Debris
-      }
-      j <- j - 1
-    }
+    nonDebris <- which(
+      cluster_location[,1] == max(cluster_location[,1])
+    )
+    cluster_pop <- list(
+      nonDebris = nonDebris
+    )
 
     utils::capture.output(
       flowClust::plot(res1, data = fcs_data[[i]],
