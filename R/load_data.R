@@ -73,7 +73,7 @@ get_files <- function(path, regexp) {
 #' \dontrun{
 #' load_data("data/examples/")
 #' }
-#' @importFrom flowCore read.flowSet
+#' @importFrom flowCore read.flowSet truncateTransform transformList transform
 #' @importFrom Biobase AnnotatedDataFrame
 #' @importFrom utils read.csv
 #' @importFrom methods as
@@ -120,6 +120,23 @@ load_data <- function(data_path) {
     phenoData = annotation,
     truncate_max_range = TRUE
   )
+  return(fcs_data)
+}
+
+#' @importFrom flowCore truncateTransform transformList transform colnames
+#' @importFrom Biobase AnnotatedDataFrame exprs
+#' @export remove_negatives
+remove_negatives <- function(fcs_data, data) {
+  zeroTrans <- flowCore::truncateTransform("truncate at 0", a=0)
+  for (x in flowCore::colnames(fcs_data)) {
+    data[, x] <- as.vector(data[, x])
+    if (min(data[, x]) < 0) {
+      print(paste0("warning: negative values found in ", x,
+                   ". Removing corresponding cells"))
+      zero_rm <- flowCore::transformList(x, zeroTrans)
+      fcs_data <- flowCore::transform(fcs_data, zero_rm)
+    }
+  }
   return(fcs_data)
 }
 

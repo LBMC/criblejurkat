@@ -11,11 +11,12 @@
 set_analysis <- function(data_path = "data/", meta = F) {
   fcs_raw <- load_data(data_path)
   data_raw <- flowset2dataframe(fcs_raw, norm = F)
-  plot_well(data_raw, sufix = "_raw")
-  plot_line(data_raw, sufix = "_raw")
-  plot_column(data_raw, sufix = "_raw")
-  rm(data_raw)
+  #plot_well(data_raw, sufix = "_raw")
+  #plot_line(data_raw, sufix = "_raw")
+  #plot_column(data_raw, sufix = "_raw")
+  #rm(data_raw)
 
+  fcs_raw <- remove_negatives(fcs_raw, data_raw)
   fcs_nonDebris <- rm_debris(fcs_raw)
   fcs_nonSinglets <- rm_nonsinglets(fcs_nonDebris)
   fcs_data <- rm_nonfluo(fcs_nonSinglets)
