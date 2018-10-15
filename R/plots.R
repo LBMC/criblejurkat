@@ -13,14 +13,19 @@
 #' @export plot_well
 plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
   s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
-  for (x in c("ratio", "Y1.A", "B1.A")) {
+  for (x in c("ratio")){ #, "Y1.A", "B1.A")) {
     s_data$x <- s_data[[x]]
     mean_x <- by(s_data$x, s_data$code.well, mean)
     s_data$mean_x <- mean_x[s_data$code.well]
     p <- ggplot2::ggplot()
     if ("pval" %in% colnames(s_data)) {
       s_data$pval <- as.vector(s_data$pval)
-      s_data$pval[s_data$pval == 0] <- 1e-14
+      if (min(s_data$pval[!is.na(s_data$pval)]) == 0) {
+        min_non_zero <- min(s_data$pval[!is.na(s_data$pval) &
+                            !(s_data$pval %in% 0)])
+        s_data$pval[!is.na(s_data$pval)] <- s_data$pval[!is.na(s_data$pval)] +
+          min_non_zero
+      }
       p <- p + ggplot2::geom_violin(data = s_data,
           ggplot2::aes(x = code.well, y = x, fill = log10(pval))) +
           ggplot2::scale_fill_gradient(low = "#E62916",
