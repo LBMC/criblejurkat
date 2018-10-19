@@ -13,7 +13,7 @@
 #' @export plot_well
 plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
   s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
-  for (x in c("ratio")){ #, "Y1.A", "B1.A")) {
+  for (x in c("ratio", "Y1.A", "B1.A")) {
     s_data$x <- s_data[[x]]
     mean_x <- by(s_data$x, s_data$code.well, mean)
     s_data$mean_x <- mean_x[s_data$code.well]
