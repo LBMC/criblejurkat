@@ -69,7 +69,7 @@ analysis <- function(data_path = "data/") {
     sets_list[[folder]] <- set_analysis(paste0(data_path, "/", folder),
                                         meta = T)
     sets_list[[folder]]$set <- folder
-    if (min_sets_length < 0 | length(sets_list[[folder]]) < min_sets_length )
+    if (min_sets_length < 0 | length(sets_list[[folder]]) < min_sets_length ) {
       min_sets_length <- length(sets_list[[folder]])
       min_sets_factors <- colnames(sets_list[[folder]])
     }
