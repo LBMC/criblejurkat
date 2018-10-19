@@ -62,11 +62,20 @@ analysis <- function(data_path = "data/") {
     dir.create(outdir_rlm, recursive = TRUE)
   }
   sets_list <- list()
+  min_sets_length <- -1
+  min_sets_factors <- c()
   for (folder in set_folders) {
     message(paste0("gating for ", folder))
     sets_list[[folder]] <- set_analysis(paste0(data_path, "/", folder),
                                         meta = T)
     sets_list[[folder]]$set <- folder
+    if (min_sets_length < 0 | length(sets_list[[folder]]) < min_sets_length )
+      min_sets_length <- length(sets_list[[folder]])
+      min_sets_factors <- colnames(sets_list[[folder]])
+    }
+  }
+  for (folder in set_folders) {
+    sets_list[[folder]] <- sets_list[[folder]][, min_sets_factors]
   }
   data <- do.call(rbind, sets_list)
   data <- as.data.frame(data)
