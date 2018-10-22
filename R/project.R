@@ -78,6 +78,7 @@ analysis <- function(data_path = "data/") {
     sets_list[[folder]] <- sets_list[[folder]][, min_sets_factors]
   }
   data <- do.call(rbind, sets_list)
+  rm(sets_list)
   data <- as.data.frame(data)
   data$set <- as.factor(data$set)
   anova_rlm(data, formula = "ratio ~ drug + batch + set",
