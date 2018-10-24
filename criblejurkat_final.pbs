@@ -13,7 +13,6 @@ HOMEDIR=/scratch/lmodolo/criblejurkat/
 ### exporte les variables d'environnement sur tous les noeuds d'exécution
 #$ -V
 ### mails en debut et fin d'execution
-#$ -m b
 #$ -m e
 
 
@@ -23,8 +22,8 @@ cd ${HOMEDIR}
 ### environment modules
 source /usr/share/lmod/lmod/init/bash
 ml R/3.4.3
-export R_LIBS="/home/lmodolo/R/"
+export R_LIBS="/scratch/lmodolo/R/x86_64-pc-linux-gnu-library/3.4/"
 
-R -e 'criblejurkat::analysis("data/final")'
+R -e '.libPaths(); library("criblejurkat"); analysis("data/final"); traceback()'
 
 
