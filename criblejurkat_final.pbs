@@ -23,6 +23,7 @@ cd ${HOMEDIR}
 ### environment modules
 source /usr/share/lmod/lmod/init/bash
 ml R/3.4.3
+export R_LIBS="/home/lmodolo/R/"
 
 R -e 'criblejurkat::analysis("data/final")'
 
