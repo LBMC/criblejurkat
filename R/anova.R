@@ -140,10 +140,10 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
                      k = stats::quantile(data[[variable_name]], 0.90))
   model_anova <- compute_pval(model, lower = lower)
   if (missing(outdir)) {
-    outdir <- mk_outdir(data, "test")
+    outdir <- mk_outdir(data, "/test")
   }
-  save(model, file = paste0(outdir, "anova_rlm.Rdata"))
   data <- export_rlm_results(data, model_anova)
+  save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   export_drug_table(data, model_anova, outdir)
   return(data)
 }
