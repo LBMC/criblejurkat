@@ -72,14 +72,14 @@ analysis <- function(data_path = "data/") {
     }
     min_sets_factors <- intersect(min_sets_factors,
                                   colnames(set_data))
-    save(set_data, file = paste0(outdir_rlm, "/", folder, ".Rdata"))
+    save(set_data, file = paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))
     rm(set_data)
   }
   data <- setNames(data.frame(matrix(ncol = length(min_sets_factors),
                                      nrow = 0)),
                    min_sets_factors)
   for (folder in set_folders) {
-    load(paste0(outdir_rlm, "/", folder, ".Rdata"))
+    load(paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))
     data <- rbind(data, set_data[, min_sets_factors])
     rm(set_data)
   }
