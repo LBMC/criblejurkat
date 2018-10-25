@@ -116,7 +116,36 @@ batch_effect <- function(data) {
   return(data)
 }
 
-#' build rm model between drugs accounting for batch effect
+#' build lm model between drugs accounting for batch effect
+#'
+#' @param data a data.frame
+#' @param formula (default: "ratio ~ drug + batch") the formula of the model
+#' @param lower (default: TRUE) tests if "y" (the ratio) is lower than in controls
+#' @param outdir set the outdir directory to a path (default extracted from fcs)
+#' @return a data.frame
+#' @examples
+#' \dontrun{
+#' data <- anova_lm(data)
+#' }
+#' @importFrom grDevices dev.off pdf
+#' @importFrom stats as.formula quantile
+#' @export anova_lm
+anova_lm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
+                      outdir) {
+  variable_name <- gsub("(.*) ~.*", "\\1", formula)
+  model <- lm(stats::as.formula(formula),
+                     data = data)
+  model_anova <- compute_pval(model, lower = lower)
+  if (missing(outdir)) {
+    outdir <- mk_outdir(data, "/test")
+  }
+  data <- export_lm_results(data, model_anova)
+  save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
+  export_drug_table(data, model_anova, outdir)
+  return(data)
+}
+
+#' build rlm model between drugs accounting for batch effect
 #'
 #' @param data a data.frame
 #' @param formula (default: "ratio ~ drug + batch") the formula of the model
@@ -169,6 +198,27 @@ export_rlm_results <- function(data, model_anova) {
   for (drug in levels(data$drug)) {
     if (!(drug %in% "None")) {
       data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug,
+        rownames(model_anova))]
+      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug,
+        rownames(model_anova)), 2]
+      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
+        rownames(model_anova))]
+      data$pval[data$drug %in% drug] <- model_anova$pval[grepl(drug,
+        rownames(model_anova))]
+    }
+  }
+  return(data)
+}
+
+#' @importFrom utils write.csv
+export_lm_results <- function(data, model_anova) {
+  data$coef <- NA
+  data$coef_std <- NA
+  data$pval <- NA
+  data$tval <- NA
+  for (drug in levels(data$drug)) {
+    if (!(drug %in% "None")) {
+      data$coef[data$drug %in% drug] <- model_anova$Estimate[grepl(drug,
         rownames(model_anova))]
       data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug,
         rownames(model_anova)), 2]
