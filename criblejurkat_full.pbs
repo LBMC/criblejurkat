@@ -22,7 +22,7 @@ cd ${HOMEDIR}
 ### environment modules
 source /usr/share/lmod/lmod/init/bash
 ml R/3.4.3
-export R_LIBS="/scratch/lmodolo/R/x86_64-pc-linux-gnu-library/3.4/"
+export R_LIBS="/Xnfs/lbmcdb/common/R/x86_64-pc-linux-gnu-library/3.4/"
 
 R -e '.libPaths(); library("criblejurkat"); analysis("data/full"); traceback()'
 
