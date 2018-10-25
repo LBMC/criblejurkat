@@ -67,7 +67,10 @@ analysis <- function(data_path = "data/") {
     set_data <- set_analysis(paste0(data_path, "/", folder),
                                         meta = T)
     set_data$set <- folder
-    set_data$drug <- paste0(set_data$drug, "_", folder)
+    set_data$drug <- ifelse(set_data$drug %in% "None",
+                            "None",
+                            paste0(set_data$drug, "_", folder)
+    )
     if (length(min_sets_factors) == 0) {
       min_sets_factors <- colnames(set_data)
     }
