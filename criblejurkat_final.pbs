@@ -1,0 +1,29 @@
+#!/bin/bash
+### variables SGE
+HOMEDIR=/scratch/lmodolo/criblejurkat/
+### shell du job
+#$ -S /bin/bash
+### nom du job (a changer)
+#$ -N criblejurkat
+### file d'attente (a changer)
+#$ -q monointeldeb128
+### parallel environnement & nslots (a changer)
+### charger l'environnement utilisateur pour SGE
+#$ -cwd
+### exporte les variables d'environnement sur tous les noeuds d'exécution
+#$ -V
+### mails en debut et fin d'execution
+#$ -m e
+
+
+### sinon SGE travaille dans ~/
+cd ${HOMEDIR}
+
+### environment modules
+source /usr/share/lmod/lmod/init/bash
+ml R/3.4.3
+export R_LIBS="/scratch/lmodolo/R/x86_64-pc-linux-gnu-library/3.4/"
+
+R -e '.libPaths(); library("criblejurkat"); analysis("data/final"); traceback()'
+
+
