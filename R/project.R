@@ -57,32 +57,36 @@ analysis <- function(data_path = "data/") {
     ))
   }
   outdir_rlm <- paste0("results/",
-                       gsub("data/(.+)/", "\\1", data_path, perl=T)[1])
+                       gsub("data/(.+)", "\\1/", data_path, perl=T)[1])
   if (!dir.exists(outdir_rlm)) {
     dir.create(outdir_rlm, recursive = TRUE)
   }
-  sets_list <- list()
   min_sets_factors <- c()
   for (folder in set_folders) {
     message(paste0("gating for ", folder))
-    sets_list[[folder]] <- set_analysis(paste0(data_path, "/", folder),
+    set_data <- set_analysis(paste0(data_path, "/", folder),
                                         meta = T)
-    sets_list[[folder]]$set <- folder
+    set_data$set <- folder
     if (length(min_sets_factors) == 0) {
-      min_sets_factors <- colnames(sets_list[[folder]])
+      min_sets_factors <- colnames(set_data)
     }
     min_sets_factors <- intersect(min_sets_factors,
-                                  colnames(sets_list[[folder]]))
+                                  colnames(set_data))
+    save(set_data, file = paste0(outdir_rlm, "/", folder, ".Rdata"))
+    rm(set_data)
   }
+  data <- setNames(data.frame(matrix(ncol = length(min_sets_factors),
+                                     nrow = 0)),
+                   min_sets_factors)
   for (folder in set_folders) {
-    sets_list[[folder]] <- sets_list[[folder]][, min_sets_factors]
+    load(paste0(outdir_rlm, "/", folder, ".Rdata"))
+    data <- rbind(data, set_data[, min_sets_factors])
+    rm(set_data)
   }
-  data <- do.call(rbind, sets_list)
-  rm(sets_list)
-  data <- as.data.frame(data)
   data$set <- as.factor(data$set)
-  anova_rlm(data, formula = "ratio ~ drug + batch + set",
+  data <- anova_rlm(data, formula = "ratio ~ drug + batch + set",
             outdir = outdir_rlm)
+  print(summary(data))
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])
