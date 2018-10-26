@@ -65,19 +65,27 @@ analysis <- function(data_path = "data/", rlm_model = TRUE) {
   min_sets_factors <- c()
   for (folder in set_folders) {
     message(paste0("gating for ", folder))
-    set_data <- set_analysis(paste0(data_path, "/", folder),
-                                        meta = T)
-    set_data$set <- folder
-    set_data$drug <- ifelse(set_data$drug %in% "None",
-                            "None",
-                            paste0(set_data$drug, "_", folder)
-    )
+    if (!file.exists(paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))) {
+      set_data <- set_analysis(paste0(data_path, "/", folder),
+                                          meta = T)
+      set_data$set <- folder
+      set_data$drug <- ifelse(set_data$drug %in% "None",
+                              "None",
+                              paste0(set_data$drug, "_", folder)
+      )
+      save(set_data,
+           file = paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))
+    } else {
+      message(paste0("gating file for ",
+                     folder,
+                     " found. skipping computation"))
+      load(paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))
+    }
     if (length(min_sets_factors) == 0) {
       min_sets_factors <- colnames(set_data)
     }
     min_sets_factors <- intersect(min_sets_factors,
                                   colnames(set_data))
-    save(set_data, file = paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))
     rm(set_data)
   }
   data <- setNames(data.frame(matrix(ncol = length(min_sets_factors),
@@ -96,7 +104,6 @@ analysis <- function(data_path = "data/", rlm_model = TRUE) {
     data <- anova_lm(data, formula = "ratio ~ drug + batch + set",
               outdir = outdir_rlm)
   }
-  print(summary(data))
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])

@@ -127,14 +127,19 @@ batch_effect <- function(data) {
 #' \dontrun{
 #' data <- anova_lm(data)
 #' }
+#' @importFrom biglm
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats as.formula quantile
 #' @export anova_lm
 anova_lm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
-                      outdir) {
+                      outdir,
+                      chunk = 20000) {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
-  model <- lm(stats::as.formula(formula),
-                     data = data)
+  if (nrow(data) > chunk) {
+    model <- split_lm(data = data, formula = formula, chunk = chunk)
+  } else {
+    model <- lm(stats::as.formula(formula), data = data)
+  }
   model_anova <- compute_pval(model, lower = lower)
   if (missing(outdir)) {
     outdir <- mk_outdir(data, "/test")
@@ -143,6 +148,34 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
   save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   export_drug_table(data, model_anova, outdir)
   return(data)
+}
+
+#' split lm model by chunck with biglm
+#'
+#' @param data a data.frame
+#' @param formula (default: "ratio ~ drug + batch") the formula of the model
+#' @param chunck (default: 200000) chunk size
+#' @return a data.frame
+#' @importFrom biglm biglm
+#' @importFrom stats as.formula quantile
+#' @export split_lm
+split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = 200000) {
+
+  data_index <- seq_len(nrow(data))
+  data_index <- sample(data_index, nrow(data))
+  index_start <- 1
+  for (index_stop in seq(from = chunk, to = nrow(data), by = chunk)) {
+    row_select <- data_index[index_start:index_stop]
+    print(summary(data[row_select, c("ratio", "drug", "batch")]))
+    if (index_start == 1) {
+      model <- biglm::biglm(stats::as.formula(formula),
+                        data = data[row_select, ])
+    } else {
+      update(model, data[row_select, ])
+    }
+    index_start <- index_stop + 1
+  }
+  return(model)
 }
 
 #' build rlm model between drugs accounting for batch effect
@@ -179,11 +212,19 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
 
 #' @importFrom stats pt
 compute_pval <- function(model, lower = TRUE) {
-  summodel <- summary(model)
-  model_anova <- data.frame(summodel$coefficients)
+  model_anova <- data.frame(coef = coef(model),
+                            se = sqrt(diag(vcov(model))),
+                            t.value = coef(model) / sqrt(diag(vcov(model))),
+                            row.names = names(coef(model))
+  )
+  print(model_anova)
+  model_df <- model$df
+  if ("n" %in% names(model)) {
+    model_df <- model$n - length(model$names)
+  }
   model_anova$pval =  stats::pt(
     model_anova$t.value,
-    summodel$df[2],
+    model_df,
     lower.tail=TRUE
   )
   return(model_anova)
