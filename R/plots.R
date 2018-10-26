@@ -42,7 +42,6 @@ plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
       ggplot2::facet_wrap(~code.well, scale = "free_x", ncol = 12) +
       ggplot2::labs(y = x) +
       ggplot2::theme_bw()
-    print(p)
     outdir <- mk_outdir(data, "summary")
     ggplot2::ggsave(
       filename = paste0(outdir, "well_", x, sufix, ".pdf"), plot = p,
@@ -79,7 +78,6 @@ plot_column <- function(data, sample_size = nrow(data) / 100,
       ggplot2::facet_wrap(~column, scale = "free_x", ncol = 12) +
       ggplot2::labs(y = x) +
       ggplot2::theme_bw()
-    print(p)
     outdir <- mk_outdir(data, "summary")
     ggplot2::ggsave(
       filename = paste0(outdir, "column_", x, sufix, ".pdf"), plot = p,
@@ -115,7 +113,6 @@ plot_line <- function(data, sample_size = nrow(data) / 100, sufix = "") {
       ggplot2::facet_wrap(~line, scale = "free_x", ncol = 8) +
       ggplot2::labs(y = x)
       ggplot2::theme_bw()
-    print(p)
     outdir <- mk_outdir(data, "summary")
     ggplot2::ggsave(
       filename = paste0(outdir, "line_", x, sufix, ".pdf"), plot = p,
