@@ -4,10 +4,14 @@
 \alias{analysis}
 \title{perform all the analysis for a set of data sets}
 \usage{
-analysis(data_path = "data/")
+analysis(data_path = "data/", rlm_model = TRUE, chunk = 20000)
 }
 \arguments{
 \item{data_path}{path to folder containing the data sets}
+
+\item{rlm_model}{(default: TRUE) should rlm model be use or lm ?}
+
+\item{chunk}{(default: 20000) size of data chunk to do the computation on for lm}
 }
 \value{
 TRUE if everythings ran correclty

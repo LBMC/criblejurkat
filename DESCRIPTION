@@ -1,7 +1,7 @@
 Package: criblejurkat
 Title: Analysis of FACS data for the Jurkat crible project
 Type: Package
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: person("Laurent", "Modolo", email = "laurent.modolo@ens-lyon.fr",
                   role = c("aut", "cre"))
 Description: The package provides a set of function to analyse FCS files.
@@ -17,9 +17,10 @@ Imports:
   flowWorkspace (>= 3.20),
   scales (>= 0.5),
   Biobase,
+  biglm,
   methods
 License: file LICENSE
 LazyData: true
 Suggests: testthat
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 BiocViews: CellBasedAssays, FlowCytometry, Software

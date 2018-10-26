@@ -1,7 +1,6 @@
 #' remove debris from data
 #'
 #' @param fcs_data an object of class flowSet
-#' @param cluster_number (default: 2) number of cluster to look for
 #' @return an object of class flowSet
 #' @examples
 #' \dontrun{

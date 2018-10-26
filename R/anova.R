@@ -121,13 +121,14 @@ batch_effect <- function(data) {
 #' @param data a data.frame
 #' @param formula (default: "ratio ~ drug + batch") the formula of the model
 #' @param lower (default: TRUE) tests if "y" (the ratio) is lower than in controls
+#' @param chunk (default: 20000) size of data chunk to do the computation on
 #' @param outdir set the outdir directory to a path (default extracted from fcs)
 #' @return a data.frame
 #' @examples
 #' \dontrun{
 #' data <- anova_lm(data)
 #' }
-#' @importFrom biglm
+#' @import biglm
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats as.formula quantile
 #' @export anova_lm
@@ -154,13 +155,12 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
 #'
 #' @param data a data.frame
 #' @param formula (default: "ratio ~ drug + batch") the formula of the model
-#' @param chunck (default: 200000) chunk size
+#' @param chunk (default: 200000) chunk size
 #' @return a data.frame
-#' @importFrom biglm biglm
+#' @import biglm
 #' @importFrom stats as.formula quantile
 #' @export split_lm
 split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = 200000) {
-
   data_index <- seq_len(nrow(data))
   data_index <- sample(data_index, nrow(data))
   index_start <- 1
@@ -209,6 +209,7 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
   return(data)
 }
 
+#' @import biglm
 #' @importFrom stats pt
 compute_pval <- function(model, lower = TRUE) {
   model_anova <- data.frame(coef = coef(model),

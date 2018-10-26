@@ -38,13 +38,14 @@ set_analysis <- function(data_path = "data/", meta = F) {
 #'
 #' @param data_path path to folder containing the data sets
 #' @param rlm_model (default: TRUE) should rlm model be use or lm ?
+#' @param chunk (default: 20000) size of data chunk to do the computation on for lm
 #' @return TRUE if everythings ran correclty
 #' @examples
 #' \dontrun{
 #' analysis("data/set_test")
 #' }
 #' @export analysis
-analysis <- function(data_path = "data/", rlm_model = TRUE) {
+analysis <- function(data_path = "data/", rlm_model = TRUE, chunk = 20000) {
   if (base::file.info(data_path)$isdir) {
     set_folders <- list.dirs(data_path, full.names = F)[-1]
   } else {
@@ -102,7 +103,7 @@ analysis <- function(data_path = "data/", rlm_model = TRUE) {
               outdir = outdir_rlm)
   } else {
     data <- anova_lm(data, formula = "ratio ~ drug + batch + set",
-              outdir = outdir_rlm)
+              outdir = outdir_rlm, chunk = chunk)
   }
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
