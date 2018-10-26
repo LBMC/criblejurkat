@@ -166,7 +166,6 @@ split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = 200000) {
   index_start <- 1
   for (index_stop in seq(from = chunk, to = nrow(data), by = chunk)) {
     row_select <- data_index[index_start:index_stop]
-    print(summary(data[row_select, c("ratio", "drug", "batch")]))
     if (index_start == 1) {
       model <- biglm::biglm(stats::as.formula(formula),
                         data = data[row_select, ])
@@ -217,7 +216,6 @@ compute_pval <- function(model, lower = TRUE) {
                             t.value = coef(model) / sqrt(diag(vcov(model))),
                             row.names = names(coef(model))
   )
-  print(model_anova)
   model_df <- model$df
   if ("n" %in% names(model)) {
     model_df <- model$n - length(model$names)
