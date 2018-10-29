@@ -132,14 +132,16 @@ batch_effect <- function(data) {
 #' @importFrom grDevices dev.off pdf
 #' @importFrom stats as.formula quantile
 #' @export anova_lm
-anova_lm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
-                      outdir,
-                      chunk = 20000) {
+anova_lm <- function(data, formula = "ratio ~ drug + batch",
+                     lower = TRUE,
+                     outdir,
+                     chunk = nrow(data)) {
   variable_name <- gsub("(.*) ~.*", "\\1", formula)
   if (nrow(data) > chunk) {
     model <- split_lm(data = data, formula = formula, chunk = chunk)
   } else {
-    model <- lm(stats::as.formula(formula), data = data)
+    model <- biglm::biglm(stats::as.formula(formula),
+                      data = data)
   }
   model_anova <- compute_pval(model, lower = lower)
   if (missing(outdir)) {
@@ -235,6 +237,7 @@ export_rlm_results <- function(data, model_anova) {
   data$coef_std <- NA
   data$pval <- NA
   data$tval <- NA
+  data$drug <- as.factor(data$drug)
   for (drug in levels(data$drug)) {
     if (!(drug %in% "None")) {
       data$coef[data$drug %in% drug] <- model_anova$Value[grepl(drug,
@@ -256,12 +259,13 @@ export_lm_results <- function(data, model_anova) {
   data$coef_std <- NA
   data$pval <- NA
   data$tval <- NA
+  data$drug <- as.factor(data$drug)
   for (drug in levels(data$drug)) {
     if (!(drug %in% "None")) {
-      data$coef[data$drug %in% drug] <- model_anova$Estimate[grepl(drug,
+      data$coef[data$drug %in% drug] <- model_anova$coef[grepl(drug,
         rownames(model_anova))]
-      data$coef_std[data$drug %in% drug] <- model_anova[grepl(drug,
-        rownames(model_anova)), 2]
+      data$coef_std[data$drug %in% drug] <- model_anova$se[grepl(drug,
+        rownames(model_anova))]
       data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
         rownames(model_anova))]
       data$pval[data$drug %in% drug] <- model_anova$pval[grepl(drug,
