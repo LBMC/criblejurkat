@@ -99,11 +99,11 @@ analysis <- function(data_path = "data/", rlm_model = TRUE) {
   }
   data$set <- as.factor(data$set)
   if (rlm_model) {
-    data <- anova_rlm(data, formula = "ratio ~ drug + batch + set",
+    data <- anova_rlm(data, formula = "ratio ~ 1 + drug + batch + set",
               outdir = outdir_rlm)
   } else {
-    data <- anova_lm(data, formula = "ratio ~ drug + batch + set",
-              outdir = outdir_rlm)
+    data <- anova_lm(data, formula = "ratio ~ 1 + drug + batch + set",
+              outdir = outdir_rlm, chunk = 200000)
   }
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
