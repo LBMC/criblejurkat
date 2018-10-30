@@ -45,7 +45,7 @@ set_analysis <- function(data_path = "data/", meta = F) {
 #' analysis("data/set_test")
 #' }
 #' @export analysis
-analysis <- function(data_path = "data/", rlm_model = TRUE, chunk = 20000) {
+analysis <- function(data_path = "data/", rlm_model = TRUE) {
   if (base::file.info(data_path)$isdir) {
     set_folders <- list.dirs(data_path, full.names = F)[-1]
   } else {
@@ -103,7 +103,7 @@ analysis <- function(data_path = "data/", rlm_model = TRUE, chunk = 20000) {
               outdir = outdir_rlm)
   } else {
     data <- anova_lm(data, formula = "ratio ~ drug + batch + set",
-              outdir = outdir_rlm, chunk = chunk)
+              outdir = outdir_rlm)
   }
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))

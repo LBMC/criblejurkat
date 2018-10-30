@@ -162,7 +162,8 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch",
 #' @import biglm
 #' @importFrom stats as.formula quantile
 #' @export split_lm
-split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = 200000) {
+split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = nrow(data)) {
+  print(paste0("spliting lm model by chunk of ", chunk, " lines"))
   data_index <- seq_len(nrow(data))
   data_index <- sample(data_index, nrow(data))
   index_start <- 1
@@ -262,14 +263,16 @@ export_lm_results <- function(data, model_anova) {
   data$drug <- as.factor(data$drug)
   for (drug in levels(data$drug)) {
     if (!(drug %in% "None")) {
-      data$coef[data$drug %in% drug] <- model_anova$coef[grepl(drug,
-        rownames(model_anova))]
-      data$coef_std[data$drug %in% drug] <- model_anova$se[grepl(drug,
-        rownames(model_anova))]
-      data$tval[data$drug %in% drug] <- model_anova$t.value[grepl(drug,
-        rownames(model_anova))]
-      data$pval[data$drug %in% drug] <- model_anova$pval[grepl(drug,
-        rownames(model_anova))]
+      data_select <- data$drug %in% drug
+      model_select <- grepl(drug, rownames(model_anova))
+      if (any(model_select)) {
+        data$coef[data_select] <- model_anova$coef[model_select]
+        data$coef_std[data_select] <- model_anova$se[model_select]
+        data$tval[data_select] <- model_anova$t.value[model_select]
+        data$pval[data_select] <- model_anova$pval[model_select]
+      } else {
+        print(paste0(drug ," not tested"))
+      }
     }
   }
   return(data)
