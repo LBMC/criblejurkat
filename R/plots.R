@@ -12,27 +12,22 @@
 #' @importFrom ggplot2 ggplot aes geom_violin geom_point facet_wrap labs theme_bw scale_fill_gradient
 #' @export plot_well
 plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
-  s_data <- data[sample(1:nrow(data), nrow(data)/100), ]
+  s_data <- data[sample(1:nrow(data), sample_size), ]
   for (x in c("ratio", "Y1.A", "B1.A")) {
     s_data$x <- s_data[[x]]
     mean_x <- by(s_data$x, s_data$code.well, mean)
     s_data$mean_x <- mean_x[s_data$code.well]
     p <- ggplot2::ggplot()
-    if ("pval" %in% colnames(s_data)) {
-      s_data$pval <- as.vector(s_data$pval)
-      if (min(s_data$pval[!is.na(s_data$pval)]) == 0) {
-        min_non_zero <- min(s_data$pval[!is.na(s_data$pval) &
-                            !(s_data$pval %in% 0)])
-        s_data$pval[!is.na(s_data$pval)] <- s_data$pval[!is.na(s_data$pval)] +
-          min_non_zero
-      }
+    if ("scaled_pval" %in% colnames(s_data)) {
+      s_data$scaled_pval <- as.vector(s_data$scaled_pval)
       p <- p + ggplot2::geom_violin(data = s_data,
-          ggplot2::aes(x = code.well, y = x, fill = log10(pval))) +
-          ggplot2::scale_fill_gradient(low = "#E62916",
-                                       high = "#56B1F7",
-                                       space = "Lab",
-                                       na.value = "grey50",
-                                       guide = "colourbar")
+          ggplot2::aes(x = code.well, y = x, fill = scaled_pval)) +
+          ggplot2::scale_fill_gradientn(colors = heat.colors(100),
+                                        na.value = "grey50",
+                                        breaks = c(0, 1),
+                                        labels = c("low p-value",
+                                                   "high p-value"),
+                                        guide = "colourbar")
     } else {
       p <- p + ggplot2::geom_violin(data = s_data,
           ggplot2::aes(x = code.well, y = x, fill = drug_status))
@@ -48,6 +43,36 @@ plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
       width = 29.7, height = 21, units = "cm", scale = 2
     )
   }
+}
+
+#' plot the ratio distribution per well
+#'
+#' @param data data.frame object with a pval column
+#' @return data data.frame object with a scaled_pval column
+#' @examples
+#' \dontrun{
+#' data <- scaled_pval(data)
+#' }
+#' @importFrom scales rescale
+#' @export scaled_pval
+scaled_pval <- function(data) {
+  data$scaled_pval <- NA
+  if (min(data$pval[!is.na(data$pval)]) == 0) {
+    min_non_zero <- min(data$pval[!is.na(data$pval) &
+                        !(data$pval %in% 0)])
+    data$scaled_pval[!is.na(data$pval)] <- data$pval[!is.na(data$pval)] +
+      min_non_zero
+  }
+  data$scaled_pval[!is.na(data$pval)]<- log10(
+    data$scaled_pval[!is.na(data$pval)]
+  )
+  data$scaled_pval[!is.na(data$pval) & data$scaled_pval < -10] <- -10
+  print(summary(data$scaled_pval))
+  data$scaled_pval[!is.na(data$pval)] <- scales::rescale(
+    data$scaled_pval[!is.na(data$pval)]
+  )
+  print(summary(data$scaled_pval))
+  return(data)
 }
 
 #' plot the ratio distribution per column

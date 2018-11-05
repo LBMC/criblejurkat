@@ -27,6 +27,7 @@ set_analysis <- function(data_path = "data/", meta = F) {
     return(data)
   }
   data <- anova_rlm(data)
+  data <- scaled_pval(data)
   plot_well(data)
   plot_line(data)
   plot_column(data)
@@ -105,6 +106,7 @@ analysis <- function(data_path = "data/", rlm_model = TRUE) {
     data <- anova_lm(data, formula = "ratio ~ 1 + drug + batch + set",
               outdir = outdir_rlm, chunk = 200000)
   }
+  data <- scaled_pval(data)
   for (folder in set_folders) {
     message(paste0("plotting for ", folder))
     plot_well(data[data$set %in% folder, ])
