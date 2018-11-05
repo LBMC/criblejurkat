@@ -4,7 +4,7 @@
 \alias{analysis}
 \title{perform all the analysis for a set of data sets}
 \usage{
-analysis(data_path = "data/", rlm_model = TRUE, chunk = 20000)
+analysis(data_path = "data/", rlm_model = TRUE)
 }
 \arguments{
 \item{data_path}{path to folder containing the data sets}

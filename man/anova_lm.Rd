@@ -5,7 +5,7 @@
 \title{build lm model between drugs accounting for batch effect}
 \usage{
 anova_lm(data, formula = "ratio ~ drug + batch", lower = TRUE, outdir,
-  chunk = 20000)
+  chunk = nrow(data))
 }
 \arguments{
 \item{data}{a data.frame}

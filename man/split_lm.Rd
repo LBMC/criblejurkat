@@ -4,7 +4,7 @@
 \alias{split_lm}
 \title{split lm model by chunck with biglm}
 \usage{
-split_lm(data, formula = "ratio ~ drug + batch", chunk = 2e+05)
+split_lm(data, formula = "ratio ~ drug + batch", chunk = nrow(data))
 }
 \arguments{
 \item{data}{a data.frame}
