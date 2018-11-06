@@ -136,7 +136,7 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch",
                      lower = TRUE,
                      outdir,
                      chunk = nrow(data)) {
-  if (file.exists(paste0(outdir, "anova_rlm.Rdata"))) {
+  if (file.exists(paste0(outdir, "anova_lm.Rdata"))) {
     message("model file found. skipping computation")
     load(paste0(outdir, "anova_lm.Rdata"))
     model_anova <- compute_pval(model, lower = lower)
@@ -157,7 +157,7 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch",
     data <- export_lm_results(data, model_anova)
     save(data, model, file = paste0(outdir, "anova_lm.Rdata"))
   }
-  export_drug_table(data, model_anova, outdir)
+  export_drug_table(data, model_anova, outdir, model = "lm")
   return(data)
 }
 
@@ -225,7 +225,7 @@ anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
     data <- export_rlm_results(data, model_anova)
     save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   }
-  export_drug_table(data, model_anova, outdir)
+  export_drug_table(data, model_anova, outdir, model = "rlm")
   return(data)
 }
 
@@ -296,7 +296,8 @@ export_lm_results <- function(data, model_anova) {
 }
 
 export_drug_table <- function(data, model_anova, outdir,
-                              channels = c("Y1.A", "B1.A")) {
+                              channels = c("Y1.A", "B1.A"),
+                              model = "rlm") {
   drug_table <- model_anova[grepl("drug", rownames(model_anova)), ]
   drug_name <- rownames(model_anova)[grepl("drug", rownames(model_anova))]
   for (channel in channels) {
@@ -305,7 +306,9 @@ export_drug_table <- function(data, model_anova, outdir,
     drug_test <- paste0("drug",names(drug_mean)) %in% rownames(drug_table)
     drug_table[[channel]] <- drug_mean[drug_test]
   }
-  utils::write.csv(model_anova, file = paste0(outdir, "anova_rlm.csv"))
+  utils::write.csv(model_anova, file = paste0(outdir, "anova_", model,
+                                              ".csv"))
   drug_table <- drug_table[order(drug_table$pval), ]
-  utils::write.csv(drug_table, file = paste0(outdir, "anova_rlm_drug.csv"))
+  utils::write.csv(drug_table, file = paste0(outdir, "anova_", model,
+                                             "_drug.csv"))
 }
