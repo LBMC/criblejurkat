@@ -61,11 +61,9 @@ scaled_pval <- function(data) {
   data$scaled_pval[!is.na(data$pval)]<- log10(
     data$scaled_pval[!is.na(data$pval)]
   )
-  print(summary(data$scaled_pval))
   data$scaled_pval[!is.na(data$pval)] <- scales::rescale(
     data$scaled_pval[!is.na(data$pval)]
   )
-  print(summary(data$scaled_pval))
   return(data)
 }
 
