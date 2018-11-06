@@ -56,17 +56,11 @@ plot_well <- function(data, sample_size = nrow(data) / 100, sufix = "") {
 #' @importFrom scales rescale
 #' @export scaled_pval
 scaled_pval <- function(data) {
-  data$scaled_pval <- NA
-  if (min(data$pval[!is.na(data$pval)]) == 0) {
-    min_non_zero <- min(data$pval[!is.na(data$pval) &
-                        !(data$pval %in% 0)])
-    data$scaled_pval[!is.na(data$pval)] <- data$pval[!is.na(data$pval)] +
-      min_non_zero
-  }
+  data$scaled_pval <- data$pval
+  data$scaled_pval[!is.na(data$pval) & data$scaled_pval < 10^-10] <- 10^-10
   data$scaled_pval[!is.na(data$pval)]<- log10(
     data$scaled_pval[!is.na(data$pval)]
   )
-  data$scaled_pval[!is.na(data$pval) & data$scaled_pval < -10] <- -10
   print(summary(data$scaled_pval))
   data$scaled_pval[!is.na(data$pval)] <- scales::rescale(
     data$scaled_pval[!is.na(data$pval)]

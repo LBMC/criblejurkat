@@ -136,19 +136,26 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch",
                      lower = TRUE,
                      outdir,
                      chunk = nrow(data)) {
-  variable_name <- gsub("(.*) ~.*", "\\1", formula)
-  if (nrow(data) > chunk) {
-    model <- split_lm(data = data, formula = formula, chunk = chunk)
+  if (file.exists(paste0(outdir, "anova_rlm.Rdata"))) {
+    message("model file found. skipping computation")
+    load(paste0(outdir, "anova_rlm.Rdata"))
+    model_anova <- compute_pval(model, lower = lower)
+    data <- export_lm_results(data, model_anova)
   } else {
-    model <- biglm::biglm(stats::as.formula(formula),
-                      data = data)
+    variable_name <- gsub("(.*) ~.*", "\\1", formula)
+    if (nrow(data) > chunk) {
+      model <- split_lm(data = data, formula = formula, chunk = chunk)
+    } else {
+      model <- biglm::biglm(stats::as.formula(formula),
+                        data = data)
+    }
+    model_anova <- compute_pval(model, lower = lower)
+    if (missing(outdir)) {
+      outdir <- mk_outdir(data, "/test")
+    }
+    data <- export_lm_results(data, model_anova)
+    save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   }
-  model_anova <- compute_pval(model, lower = lower)
-  if (missing(outdir)) {
-    outdir <- mk_outdir(data, "/test")
-  }
-  data <- export_lm_results(data, model_anova)
-  save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   export_drug_table(data, model_anova, outdir)
   return(data)
 }
@@ -197,17 +204,24 @@ split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = nrow(data))
 #' @export anova_rlm
 anova_rlm <- function(data, formula = "ratio ~ drug + batch", lower = TRUE,
                       outdir) {
-  variable_name <- gsub("(.*) ~.*", "\\1", formula)
-  model <- MASS::rlm(stats::as.formula(formula),
-                     data = data,
-                     psi = MASS::psi.huber,
-                     k = stats::quantile(data[[variable_name]], 0.90))
-  model_anova <- compute_pval(model, lower = lower)
-  if (missing(outdir)) {
-    outdir <- mk_outdir(data, "/test")
+  if (file.exists(paste0(outdir, "anova_rlm.Rdata"))) {
+    message("model file found. skipping computation")
+    load(paste0(outdir, "anova_rlm.Rdata"))
+    model_anova <- compute_pval(model, lower = lower)
+    data <- export_rlm_results(data, model_anova)
+  } else {
+    variable_name <- gsub("(.*) ~.*", "\\1", formula)
+    model <- MASS::rlm(stats::as.formula(formula),
+                      data = data,
+                      psi = MASS::psi.huber,
+                      k = stats::quantile(data[[variable_name]], 0.90))
+    model_anova <- compute_pval(model, lower = lower)
+    if (missing(outdir)) {
+      outdir <- mk_outdir(data, "/test")
+    }
+    data <- export_rlm_results(data, model_anova)
+    save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   }
-  data <- export_rlm_results(data, model_anova)
-  save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
   export_drug_table(data, model_anova, outdir)
   return(data)
 }
@@ -271,7 +285,7 @@ export_lm_results <- function(data, model_anova) {
         data$tval[data_select] <- model_anova$t.value[model_select]
         data$pval[data_select] <- model_anova$pval[model_select]
       } else {
-        print(paste0(drug ," not tested"))
+        message(paste0(drug ," not tested"))
       }
     }
   }
