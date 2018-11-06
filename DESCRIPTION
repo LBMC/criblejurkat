@@ -1,7 +1,7 @@
 Package: criblejurkat
 Title: Analysis of FACS data for the Jurkat crible project
 Type: Package
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: person("Laurent", "Modolo", email = "laurent.modolo@ens-lyon.fr",
                   role = c("aut", "cre"))
 Description: The package provides a set of function to analyse FCS files.

@@ -138,11 +138,12 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch",
                      chunk = nrow(data)) {
   if (file.exists(paste0(outdir, "anova_rlm.Rdata"))) {
     message("model file found. skipping computation")
-    load(paste0(outdir, "anova_rlm.Rdata"))
+    load(paste0(outdir, "anova_lm.Rdata"))
     model_anova <- compute_pval(model, lower = lower)
     data <- export_lm_results(data, model_anova)
   } else {
-    variable_name <- gsub("(.*) ~.*", "\\1", formula)
+    data$drug <- as.factor(data$drug)
+    data$drug <- relevel(data$drug, "None")
     if (nrow(data) > chunk) {
       model <- split_lm(data = data, formula = formula, chunk = chunk)
     } else {
@@ -154,7 +155,7 @@ anova_lm <- function(data, formula = "ratio ~ drug + batch",
       outdir <- mk_outdir(data, "/test")
     }
     data <- export_lm_results(data, model_anova)
-    save(data, model, file = paste0(outdir, "anova_rlm.Rdata"))
+    save(data, model, file = paste0(outdir, "anova_lm.Rdata"))
   }
   export_drug_table(data, model_anova, outdir)
   return(data)
@@ -174,6 +175,8 @@ split_lm <- function(data, formula = "ratio ~ drug + batch", chunk = nrow(data))
   data_index <- seq_len(nrow(data))
   data_index <- sample(data_index, nrow(data))
   index_start <- 1
+  data$drug <- as.factor(data$drug)
+  data$drug <- relevel(data$drug, "None")
   for (index_stop in seq(from = chunk, to = nrow(data), by = chunk)) {
     row_select <- data_index[index_start:index_stop]
     if (index_start == 1) {
