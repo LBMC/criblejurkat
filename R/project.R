@@ -51,7 +51,7 @@ set_analysis <- function(data_path = "data/", meta = F) {
 #' analysis("data/set_test")
 #' }
 #' @export analysis
-analysis <- function(data_path = "data/", rlm_model = TRUE) {
+analysis <- function(data_path = "data/", rlm_model = FALSE) {
   if (base::file.info(data_path)$isdir) {
     set_folders <- list.dirs(data_path, full.names = F)[-1]
   } else {
