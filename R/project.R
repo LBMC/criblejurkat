@@ -26,7 +26,12 @@ set_analysis <- function(data_path = "data/", meta = F) {
   if (meta) {
     return(data)
   }
-  data <- anova_rlm(data)
+  outdir_rlm <- paste0("results/",
+                       gsub("data/(.+)", "\\1/", data_path, perl=T)[1])
+  if (!dir.exists(outdir_rlm)) {
+    dir.create(outdir_rlm, recursive = TRUE)
+  }
+  data <- anova_lm(data, outdir = outdir_rlm)
   data <- scaled_pval(data)
   plot_well(data)
   plot_line(data)
