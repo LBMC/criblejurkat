@@ -8,7 +8,7 @@
 #' set_analysis("data/2018_01_08_20171212/")
 #' }
 #' @export set_analysis
-set_analysis <- function(data_path = "data/", meta = F) {
+set_analysis <- function(data_path = "data/", meta = F, output_data = F) {
   fcs_raw <- load_data(data_path)
   data_raw <- flowset2dataframe(fcs_raw, norm = F)
   plot_well(data_raw, sufix = "_raw")
@@ -23,6 +23,13 @@ set_analysis <- function(data_path = "data/", meta = F) {
 
   data <- flowset2dataframe(fcs_data, norm = T)
   rm(fcs_data)
+  if (output_data) {
+    write.csv(data, file = paste0(
+      "results/",
+      gsub("data/(.+)", "\\1/", data_path, perl = T)[1],
+      "data.csv"
+    ))
+  }
   if (meta) {
     return(data)
   }
@@ -51,7 +58,7 @@ set_analysis <- function(data_path = "data/", meta = F) {
 #' analysis("data/set_test")
 #' }
 #' @export analysis
-analysis <- function(data_path = "data/", rlm_model = FALSE) {
+analysis <- function(data_path = "data/", rlm_model = FALSE, output_data = F) {
   if (base::file.info(data_path)$isdir) {
     set_folders <- list.dirs(data_path, full.names = F)[-1]
   } else {
@@ -74,7 +81,8 @@ analysis <- function(data_path = "data/", rlm_model = FALSE) {
     message(paste0("gating for ", folder))
     if (!file.exists(paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))) {
       set_data <- set_analysis(paste0(data_path, "/", folder),
-                                          meta = T)
+                               meta = T,
+                               output_data = output_data)
       set_data$set <- folder
       set_data$drug <- ifelse(set_data$drug %in% "None",
                               "None",
