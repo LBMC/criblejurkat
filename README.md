@@ -1,3 +1,5 @@
+# This project can now be found at https://gitbio.ens-lyon.fr/LBMC/Jalinot/criblejurkat
+
 # criblejurkat R package
 
 This repository is an R package for the automatic analaysis for fcs data for the jurkat drug crible project.
