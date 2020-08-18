@@ -68,7 +68,7 @@ analysis <- function(data_path = "data/", rlm_model = FALSE, output_data = F) {
   }
   if (base::length(set_folders) < 1) {
     stop(paste0(
-      "error: ", data_path, " doesn't folders"
+      "error: ", data_path, " doesn't contains any folders"
     ))
   }
   outdir_rlm <- paste0("results/",
@@ -78,7 +78,7 @@ analysis <- function(data_path = "data/", rlm_model = FALSE, output_data = F) {
   }
   min_sets_factors <- c()
   for (folder in set_folders) {
-    message(paste0("gating for ", folder))
+    message(paste0("gating for ", data_path, "/", folder))
     if (!file.exists(paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))) {
       set_data <- set_analysis(paste0(data_path, "/", folder),
                                meta = T,
