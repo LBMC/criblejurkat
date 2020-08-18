@@ -95,6 +95,12 @@ load_data <- function(data_path) {
     annotation <- utils::read.csv(
       paste0(data_path, "/annotation.csv"), sep = ";", header = TRUE
     )
+    if(any(grepl("file.temp", colnames(annotation), ignore.case=TRUE))){
+      annotation <- annotation[
+        ,
+        -grep("file.temp", colnames(annotation), ignore.case=TRUE)
+      ]
+    }
   } else {
     annotation <- tryCatch({
       annotation_files <- get_files(data_path, ".csv")
@@ -116,6 +122,7 @@ load_data <- function(data_path) {
   rownames(annotation) <- fcs_files
   fcs_data <- flowCore::read.flowSet(
     transformation = F,
+    path = data_path,
     alter.names = T,
     phenoData = annotation,
     truncate_max_range = TRUE
