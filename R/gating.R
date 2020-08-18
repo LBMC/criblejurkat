@@ -94,7 +94,7 @@ rm_nonsinglets <- function(fcs_data) {
   )
   wf <- flowCore::transform(fcs_data, tl)
   wf <- flowWorkspace::GatingSet(wf)
-  openCyto::add_pop(
+  openCyto::gs_add_gating_method(
     wf, alias = "singlets", pop = "+", parent = "root",
     dims = "FSC.A,FSC.H", gating_method = "singletGate",
     gating_args = "wider_gate=TRUE, maxit = 100"
@@ -109,7 +109,7 @@ rm_nonsinglets <- function(fcs_data) {
     filename = paste0(outdir, "singlets.pdf"), plot = p,
     width = 29.7, height = 21, units = "cm", scale = 2
   )
-  fcs_singlets <- flowWorkspace::getData(wf, "singlets")
+  fcs_singlets <- flowWorkspace::gs_pop_get_data(wf, "singlets")
   flowWorkspace::sampleNames(fcs_singlets) <- full_sample_names 
   return(fcs_singlets)
 }
@@ -135,19 +135,29 @@ rm_nonfluo <- function(fcs_data) {
   graphics::par(mfrow = c(8, 12))
   pb <- utils::txtProgressBar(min = 0, max = length(fcs_data),
                              initial = 1, style = 3)
+  print(length(fcs_data))
+  print(ncol(fcs_data))
+  print(nrow(fcs_data))
   for (i in 1:length(fcs_data)) {
-    suppressMessages(
-      res1 <- flowClust::flowClust(fcs_data[[i]],
-                                   varNames = c("Y1.A", "B1.A"),
-                                   K = 1,
-                                   B = 100)
-    )
+    # suppressMessages(
+      res <- flowClust::flowClust(
+        fcs_data[[i]],
+        varNames = c("Y1.A", "B1.A"),
+        K = 1,
+        B = 100
+      )
+    # )
     utils::capture.output(
-      flowClust::plot(res1, data=fcs_data[[i]], level=0.85, z.cutoff=0)
+      flowClust::plot(
+        res,
+        data = fcs_data[[i]],
+        level = 0.85,
+        z.cutoff = 0
+      )
     )
     fcs_fluo[[i]] <- flowClust::split(
       fcs_data[[i]],
-      res1,
+      res,
       rm.outliers = TRUE,
       population = list(
         fluo = 1
