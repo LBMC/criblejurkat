@@ -84,18 +84,20 @@ rm_debris <- function(fcs_data) {
 rm_nonsinglets <- function(fcs_data) {
   message("removing non-singlets")
   outdir <- mk_outdir(fcs_data, "gating")
-  suppressMessages(
-    wf <- flowWorkspace::GatingSet(fcs_data)
+  full_sample_names <- flowWorkspace::sampleNames(fcs_data)
+  flowWorkspace::sampleNames(fcs_data) <- gsub(
+    ".*/([^/]*)", "\\1", full_sample_names
   )
-  bi_expTrans <- flowWorkspace::flowJo_biexp_trans()
-  tl <- flowWorkspace::transformerList(c("Y1.A", "B1.A"), bi_expTrans)
-  wf <- flowCore::transform(wf, tl)
-  suppressMessages(
-    openCyto::add_pop(
-      wf, alias = "singlets", pop = "+", parent = "root",
-      dims = "FSC.A,FSC.H", gating_method = "singletGate",
-      gating_args = "wider_gate=TRUE, maxit = 100"
-    )
+  bi_expTrans <- flowWorkspace::flowjo_biexp_trans()
+  tl <- flowCore::transformList(
+    c("Y1.A", "B1.A"), list(bi_expTrans$transform, bi_expTrans$transform)
+  )
+  wf <- flowCore::transform(fcs_data, tl)
+  wf <- flowWorkspace::GatingSet(wf)
+  openCyto::add_pop(
+    wf, alias = "singlets", pop = "+", parent = "root",
+    dims = "FSC.A,FSC.H", gating_method = "singletGate",
+    gating_args = "wider_gate=TRUE, maxit = 100"
   )
   p <- ggcyto::ggcyto(wf, mapping = ggplot2::aes(x = FSC.A,y = FSC.H)) +
     ggplot2::geom_hex(bins = 50) +
@@ -108,6 +110,7 @@ rm_nonsinglets <- function(fcs_data) {
     width = 29.7, height = 21, units = "cm", scale = 2
   )
   fcs_singlets <- flowWorkspace::getData(wf, "singlets")
+  flowWorkspace::sampleNames(fcs_singlets) <- full_sample_names 
   return(fcs_singlets)
 }
 
