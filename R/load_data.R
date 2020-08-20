@@ -120,12 +120,14 @@ load_data <- function(data_path) {
   }
   annotation <- methods::as(annotation, "AnnotatedDataFrame")
   rownames(annotation) <- fcs_files
-  fcs_data <- flowCore::read.flowSet(
-    transformation = F,
-    path = data_path,
-    alter.names = T,
-    phenoData = annotation,
-    truncate_max_range = TRUE
+  fcs_data <- suppressWarnings(
+    flowCore::read.flowSet(
+      transformation = F,
+      path = data_path,
+      alter.names = T,
+      phenoData = annotation,
+      truncate_max_range = TRUE
+    )
   )
   return(fcs_data)
 }
