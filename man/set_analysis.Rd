@@ -4,7 +4,7 @@
 \alias{set_analysis}
 \title{perform all the analysis for a given data set}
 \usage{
-set_analysis(data_path = "data/", meta = F)
+set_analysis(data_path = "data/", meta = F, output_data = F)
 }
 \arguments{
 \item{data_path}{path to the data set}
