@@ -22,5 +22,5 @@ Imports:
 License: file LICENSE
 LazyData: true
 Suggests: testthat
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.0
 BiocViews: CellBasedAssays, FlowCytometry, Software
