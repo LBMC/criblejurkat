@@ -1,8 +1,8 @@
-FROM lbmc/r-base:4.0.0
+FROM lbmc/r-base:4.0.2
 
 ## copy files
 COPY ./criblejurkat_1.2.0.tar.gz ./
-RUN apk add openssl bash R-doc file \
+RUN apk add openssl bash \
 && Rscript -e "\
   options(repos=structure(c(CRAN=\"http://cloud.r-project.org\"))); \
   install.packages(c(\"nlme\", \"Matrix\")); \
