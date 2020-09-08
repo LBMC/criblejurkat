@@ -79,7 +79,7 @@ analysis <- function(data_path = "data/", rlm_model = FALSE, output_data = F) {
   min_sets_factors <- c()
   for (folder in set_folders) {
     message(paste0("gating for ", data_path, "/", folder))
-    if (!file.exists(paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))) {
+    if (!file.exists(paste0(outdir_rlm, "/", folder, ".Rdata"))) {
       set_data <- set_analysis(paste0(data_path, "/", folder),
                                meta = T,
                                output_data = output_data)
@@ -89,7 +89,7 @@ analysis <- function(data_path = "data/", rlm_model = FALSE, output_data = F) {
                               paste0(set_data$drug, "_", folder)
       )
       save(set_data,
-           file = paste0(outdir_rlm, "/", folder, "/", folder, ".Rdata"))
+           file = paste0(outdir_rlm, "/", folder, ".Rdata"))
     } else {
       message(paste0("gating file for ",
                      folder,
